@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const ProductSchema = new mongoose.Schema({
-    code: {type: String, required: true},
+    code: {type: String},
     picture: [{
         type: String,
     }],
@@ -18,7 +18,6 @@ const Product = new mongoose.model("productDekrup", ProductSchema);
 const validate = (data) => {
     const Schema = Joi.onject({
         picture: Joi.string().required().label("กรุณาใส่รูปภาพ"),
-        code: Joi.string().required().label("กรุณากรอกรหัสสินค้า"),
         name: Joi.string().required().label("กรุณากรอกชื่อสินค้า"),
         detail: Joi.string().required().label("กรุณากรอกรายละเอียดสินค้า"),
         price: Joi.string().required().label("กรุณากรอกราคาสินค้า"),

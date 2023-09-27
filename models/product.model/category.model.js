@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const CategorySchema = new mongoose.Schema({
+    code: {type: String},
     name: {type: String, required: true, unique: true},
 });
 

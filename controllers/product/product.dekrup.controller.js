@@ -1,4 +1,5 @@
 const {Product, validate} = require("../../models/product.model/product.model");
+const {Category} = require("../../models/product.model/category.model");
 const fs = require("fs");
 const multer = require("multer");
 const {google} = require("googleapis");
@@ -35,22 +36,25 @@ module.exports.create = async (req, res) => {
       }
       const reqFiles = [];
       if (!req.files) {
-        res
-          .status(500)
-          .send({
-            message: "มีบางอย่างผิดพลาด",
-            data: "No Request Files",
-            status: false,
-          });
+        res.status(500).send({
+          message: "มีบางอย่างผิดพลาด",
+          data: "No Request Files",
+          status: false,
+        });
       } else {
         const url = req.protocol + "://" + req.get("host");
         for (var i = 0; i < req.files.length; i++) {
           await uploadFileCreate(req.files, res, {i, reqFiles});
         }
         //create collection
+        const category = await Category.findById(req.body.categoryid);
+        const codeCategory = category.code;
+        const productNumber = await Product.find();
+        const count = productNumber.length + 1;
+        const code = `${codeCategory}DQ${count.toString().padStart(4, "0")}`;
         const data = {
           picture: reqFiles[0],
-          code: req.body.code,
+          code: code,
           name: req.body.name,
           category: req.body.category,
           detail: req.body.detail,

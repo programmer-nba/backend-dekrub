@@ -8,7 +8,11 @@ const multer = require("multer");
 //create category
 module.exports.create = async (req, res) => {
   try {
+    const codeNumber = await Category.find();
+    const count = codeNumber.length + 1;
+    const code = `PDK${count.toString().padStart(3, '0')}`;
     const data = {
+      code: code,
       name: req.body.name,
     };
     const category = await Category.create(data);
@@ -84,7 +88,7 @@ module.exports.UpdateById = async (req, res) => {
   }
 };
 
-//delete product
+//delete category
 module.exports.delete = async (req, res) => {
   try {
     const id = req.params.id;
@@ -101,3 +105,4 @@ module.exports.delete = async (req, res) => {
     return res.status(500).send({message: "Internal Server Error"});
   }
 };
+
