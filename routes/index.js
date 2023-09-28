@@ -6,6 +6,7 @@ const auth = require('../lib/auth');
 
 router.post('/register', main.register);
 router.post('/login', main.login);
+router.post('/logout',auth, main.logout);
 router.get('/me',auth, main.me);
 
 
