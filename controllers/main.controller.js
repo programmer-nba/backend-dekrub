@@ -192,8 +192,8 @@ exports.me = async (req, res) => {
 
 const checkMembers = async (req, res) => {
   try {
-    const {username, password, ip_address} = req.body;
-    if (!username || !password || !ip_address) {
+    const {username, password} = req.body;
+    if (!username || !password) {
       return res.status(400).send({message: error.details[0].message});
     }
     const member = await Members.findOne({username});
@@ -214,7 +214,6 @@ const checkMembers = async (req, res) => {
     const token = jwt.sign(payload, `${process.env.JWTPRIVATEKEY}`);
     await new LoginHistory({
       username: member.username,
-      ip_address: member.ip_address,
       timestamp: dayjs(Date.now()).format(),
     }).save();
     const ResponesData = {
