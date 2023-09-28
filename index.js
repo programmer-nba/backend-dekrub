@@ -13,19 +13,19 @@ mongoose.connect(process.env.DB,{ useNewUrlParser: true });
 app.use(express.json());
 app.use(cors());
 
-app.use('/dekrup-shop', require("./routes/index"));
+app.use('/dekrub-shop', require("./routes/index"));
 
 //Admin
-app.use('/dekrup-shop/admin', require('./routes/admin/admin.user')); 
+app.use('/dekrub-shop/admin', require('./routes/admin/admin.user')); 
 
 //Member
-app.use('/dekrup-shop/member', require('./routes/member/member.user')); 
+app.use('/dekrub-shop/member', require('./routes/member/member.user')); 
 
 //products
-app.use('/dekrup-shop/product', require('./routes/product/index'));
-app.use('/dekrup-shop/product/category', require('./routes/product/category'));
+app.use('/dekrub-shop/product', require('./routes/product/index'));
+app.use('/dekrub-shop/product/category', require('./routes/product/category'));
 //Order
-app.use('/dekrup-shop/order', require('./routes/order/index'));
+app.use('/dekrub-shop/order', require('./routes/order/index'));
 
 const port = process.env.PORT || 9060;
 
