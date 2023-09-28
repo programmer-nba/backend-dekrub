@@ -105,6 +105,77 @@ exports.register = async (req, res) => {
   }
 };
 
+exports.login = async (req, res) => {
+  try {
+    const {username, password} = req.body;
+    if (!username || !password) {
+      return res.status(400).send({message: error.details[0].message});
+    }
+    const admin = await Admins.findOne({username});
+    if (!admin) {
+      await checkMembers(req, res);
+    } else {
+      const validPasswordAdmin =
+        admin && (await bcrypt.compare(password, admin.password));
+      if (!validPasswordAdmin) {
+        return res.status(401).send({
+          message: "password is not find",
+          status: false,
+        });
+      }
+      const payload = {
+        _id: admin._id,
+        auth: admin.position,
+        name: admin.name,
+        username: admin.username,
+      };
+      const token = jwt.sign(payload, `${process.env.JWTPRIVATEKEY}`);
+      await new LoginHistory({
+        username: admin.username,
+        timestamp: dayjs(Date.now()).format(),
+      }).save();
+      await new TokenList({
+        id: admin._id,
+        token: token,
+        timestamp: dayjs(Date.now()).format(),
+      }).save();
+      const ResponesData = {
+        name: admin.name,
+        username: admin.username,
+        position: admin.position,
+      };
+      res.status(200).send({
+        token: token,
+        messahe: "เข้าสู่ระบบสำเร็จ",
+        result: ResponesData,
+        level: "admin",
+        status: true,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({message: "Internal Server Error"});
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    const token = token_decode(req.headers["token"]);
+    const logout = await TokenList.deleteMany({id: token._id});
+    if (logout) {
+      return res.status(200).send({status: true, message: "ออกจากระบบสำเร็จ"});
+    } else {
+      return res.status(400).send({
+        status: false,
+        message: "ออกจากระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
 //เรียกข้อมูลมูลผู้ใช้
 exports.me = async (req, res) => {
   try {
@@ -134,78 +205,6 @@ exports.me = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
-  try {
-    const {username, password} = req.body;
-    if (!username || !password) {
-      return res.status(400).send({message: error.details[0].message});
-    }
-    const admin = await Admins.findOne({username});
-    if (!admin) {
-      await checkMembers(req, res);
-    } else {
-      const validPasswordAdmin =
-        admin && (await bcrypt.compare(password, admin.password));
-      if (!validPasswordAdmin) {
-        return res.status(401).send({
-          message: "password is not find",
-          status: false,
-        });
-      }
-      const payload = {
-        _id: admin._id,
-        auth: admin.position,
-        name: admin.name,
-        username: admin.username,
-      };
-      console.log(payload);
-      const token = jwt.sign(payload, `${process.env.JWTPRIVATEKEY}`);
-      await new LoginHistory({
-        username: admin.username,
-        timestamp: dayjs(Date.now()).format(),
-      }).save();
-      await new TokenList({
-        _id: admin._id,
-        token: token,
-        timestamp: dayjs(Date.now()).format(),
-      }).save();
-      const ResponesData = {
-        name: admin.name,
-        username: admin.username,
-        position: admin.position,
-      };
-      res.status(200).send({
-        token: token,
-        messahe: "เข้าสู่ระบบสำเร็จ",
-        result: ResponesData,
-        level: "admin",
-        status: true,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({message: "Internal Server Error"});
-  }
-};
-
-exports.logout = async (req, res) => {
-  try {
-    const token = token_decode(req.headers["token"]);
-    const logout = await TokenList.deleteMany({_id: token._id});
-    if (logout) {
-      return res.status(200).send({status: true, message: "ออกจากระบบสำเร็จ"});
-    } else {
-      return res.status(400).send({
-        status: false,
-        message: "ออกจากระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
-      });
-    }
-  } catch (err) {
-    console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
-  }
-};
-
 const checkMembers = async (req, res) => {
   try {
     const {username, password} = req.body;
@@ -227,14 +226,13 @@ const checkMembers = async (req, res) => {
       name: member.name,
       username: member.username,
     };
-    console.log(payload);
     const token = jwt.sign(payload, `${process.env.JWTPRIVATEKEY}`);
     await new LoginHistory({
       username: member.username,
       timestamp: dayjs(Date.now()).format(),
     }).save();
     await new TokenList({
-      _id: member._id,
+      id: member._id,
       token: token,
       timestamp: dayjs(Date.now()).format(),
     }).save();
