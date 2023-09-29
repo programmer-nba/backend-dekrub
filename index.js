@@ -32,6 +32,9 @@ app.use('/dekrub-shop/order', require('./routes/order/index'));
 //comnission
 app.use('/dekrub-shop/commission', require('./routes/commission/index'));
 
+//more
+app.use('/dekrub-shop/more/function_more', require('./routes/more/function.more'))
+
 const port = process.env.PORT || 9060;
 
 app.listen(port,() => {
