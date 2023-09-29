@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 const MemberSchema = new mongoose.Schema({
-  card_number: {type: String, required: true},
+  member_number: {type: String, required: true},
   name: {type: String, required: true},
   username: {type: String, required: true},
   password: {type: String, required: true},
@@ -38,7 +38,7 @@ const Members = mongoose.model("member", MemberSchema);
 
 const validate = (data) => {
   const schema = Joi.object({
-    care_number: Joi.string().required().label("ไม่พบเลข"),
+    member_number: Joi.string().required().label("ไม่พบเลข"),
     name: Joi.string().required().label("ไม่พบชื่อ"),
     username: Joi.string().required().label("ไม่พบ user"),
     password : Joi.string().required().label('ไม่พบรหัสผ่าน'),
@@ -48,6 +48,8 @@ const validate = (data) => {
     district: Joi.string().required().label("ไม่พบ เขต/อำเภอ"),
     province: Joi.string().required().label("ไม่พบจังหวัด"),
     postcode: Joi.string().required().label("ไม่พบรหัส ปณ."),
+    commission_day: Joi.number().default(0),
+    commission_week: Joi.number().default(0),
     bank: {
       name: Joi.string().default("-"),
       number: Joi.string().default("-"),

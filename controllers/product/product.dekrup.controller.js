@@ -56,7 +56,7 @@ module.exports.create = async (req, res) => {
           picture: reqFiles[0],
           code: code,
           name: req.body.name,
-          category: req.body.category,
+          category: req.body.categoryid,
           detail: req.body.detail,
           price: Number(req.body.price),
           quantity: Number(req.body.quantity),

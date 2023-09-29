@@ -16,6 +16,12 @@ const orderproduct = new mongoose.Schema({
             price: {type: Number, required: true},
         }]
     },
+    status: {
+        type: [{
+            status: {type: String},
+            timestamp: {type: String},
+        }]
+    },
     totalprice: {type: Number, required: true},
     timestamp: {type: Date, default: Date.now() }
 })

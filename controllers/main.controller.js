@@ -1,8 +1,9 @@
 const {Admins} = require("../models/admin.model");
-const {Members} = require("../models/member.model");
+const {Members} = require("../models/member/member.model");
 const {LoginHistory} = require("../models/login.history.model");
 const {TokenList} = require("../models/token.list.model");
 const token_decode = require("../lib/token_decode");
+const {Commission_day} = require("../models/commission/commission.day.model");
 
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
@@ -13,7 +14,7 @@ require("dotenv").config();
 //Validate Register
 const vali_register = (data) => {
   const schema = Joi.object({
-    card_number: Joi.string().required(),
+    member_ref: Joi.string().default("กรุณากรอกรหัสผู้แนะนำ"),
     name: Joi.string().required().label("กรุณากรอกชื่อ-นามสกุล"),
     username: Joi.string().required().label("กรุณากรอกชื่อผู้ใช้"),
     password: Joi.string().required().label("กรุณากรอกรหัสผ่าน"),
@@ -23,7 +24,6 @@ const vali_register = (data) => {
     district: Joi.string().required().label("กรุณากรอกเขต/อำเภอ"),
     province: Joi.string().required().label("กรุณากรอกจังหวัด"),
     postcode: Joi.string().required().label("กรุณากรอกรหัสไปรษณีย์"),
-    timestamp: Joi.string().required().label("ไม่พบเวลาที่สมัคร"),
   });
   return schema.validate(data);
 };
@@ -36,45 +36,68 @@ exports.register = async (req, res) => {
         .status(400)
         .send({status: false, message: error.details[0].message});
     }
+    const user = await Members.findOne({
+      username: req.body.username,
+    });
+    if (user) {
+      return res.status(409).send({
+        status: false,
+        message: "รหัสผู้ใช้นี้มีในระบบแล้ว",
+      });
+    }
     let data = null;
-    // const card_number = `888888${req.body.ref_id}`;
+    const memberNumber = await Members.find();
+    const count = memberNumber.length + 1;
+    const member_number = `DK969${count.toString().padStart(8, "0")}`;
+    const date = dayjs(Date.now()).format();
     const encrytedPassword = await bcrypt.hash(req.body.password, 10);
-    // if (req.body.username) {
-    //   const memberRef = await Members.findOne({username: req.body.username});
-    //   if (memberRef) {
-    //     const upline = {
-    //       lv1: memberRef._id,
-    //       lv2: memberRef.upline.lv1,
-    //     };
-    //     data = {
-    //       ...req.body,
-    //       card_number: card_number,
-    //       password: encrytedPassword,
-    //       upline: upline,
-    //     };
-    //   } else {
-    //     return res.status(400).send({
-    //       status: false,
-    //       message: "ไม่พบข้อมูลผู้แนะนำ",
-    //     });
-    //   }
-    // } else {
-    //   data = {
-    //     ...req.body,
-    //     card_number: card_number,
-    //     password: encrytedPassword,
-    //   };
-    //   console.log("ไม่มีคนแนะนำ");
-    // }
-
-    //เพิ่มข้อมูลลงฐานข้อมูล
-
-    data = {
-      ...req.body,
-      position: "member",
-      password: encrytedPassword,
+    //commission
+    const commission = 150;
+    //vat commission
+    const vat = (commission * 3) / 100;
+    //real commission
+    const realcommission = commission - vat;
+    if (req.body.username) {
+      const memberRef = await Members.findOne({
+        member_number: req.body.member_ref,
+      });
+      if (memberRef) {
+        const upline = {
+          lv1: memberRef.member_number,
+          lv2: memberRef.upline.lv1,
+        };
+        data = {
+          ...req.body,
+          member_number: member_number,
+          position: "member",
+          password: encrytedPassword,
+          upline: upline,
+          timestamp: date,
+        };
+      } else {
+        return res.status(400).send({
+          status: false,
+          message: "ไม่พบข้อมูลผู้แนะ",
+        });
+      }
+    }
+    const storeData = [];
+    const integratedData = {
+      member_number: req.body.member_ref,
+      commission: commission,
+      vat3percent: vat,
+      remainding_commission: realcommission,
     };
-
+    if (integratedData) {
+      storeData.push(integratedData);
+    }
+    const commissionData = {
+      data: storeData,
+      from_member: member_number,
+    };
+    const commission_day = new Commission_day(commissionData);
+    commission_day.save();
+    //เพิ่มข้อมูลลงฐานข้อมูล
     const member = await Members.create(data);
     if (member) {
       const payload = {
@@ -89,7 +112,7 @@ exports.register = async (req, res) => {
         timestamp: dayjs(Date.now()).format(),
       }).save();
       await new TokenList({
-        username: member.username,
+        id: member._id,
         token: token,
         timestamp: dayjs(Date.now()).format(),
       }).save();
@@ -201,6 +224,41 @@ exports.me = async (req, res) => {
       }
     }
   } catch (err) {
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
+//แก้ไขหรือตั้งรหัสผ่านใหม่
+exports.setPassword = async (req, res) => {
+  try {
+    const vali = (data) => {
+      const schema = Joi.object({
+        password: Joi.string().required().label("ไม่พบรหัสผ่านใหม่"),
+      });
+      return schema.validate(data);
+    };
+    const {error} = vali(req.body);
+    if (error) {
+      return res
+        .status(400)
+        .send({status: false, message: error.details[0].message});
+    }
+    const decode = token_decode(req.headers["token"]);
+    const encrytedPassword = await bcrypt.hash(req.body.password, 10);
+    const change_password = await Members.findByIdAndUpdate(decode._id, {
+      password: encrytedPassword,
+    });
+    if (change_password) {
+      return res
+        .status(200)
+        .send({status: true, message: "ทำการเปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว"});
+    } else {
+      return res
+        .status(400)
+        .send({status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ"});
+    }
+  } catch (err) {
+    console.log(err);
     return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
   }
 };

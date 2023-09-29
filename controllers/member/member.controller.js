@@ -1,4 +1,4 @@
-const {Members, validate} = require('../../models/member.model');
+const {Members, validate} = require('../../models/member/member.model');
 const bcrypt = require("bcrypt");
 const Joi = require('joi');
 exports.addUser = async(req, res)=>{

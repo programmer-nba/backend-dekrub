@@ -20,12 +20,17 @@ app.use('/dekrub-shop/admin', require('./routes/admin/admin.user'));
 
 //Member
 app.use('/dekrub-shop/member', require('./routes/member/member.user')); 
+app.use('/dekrub-shop/public/member', require('./routes/public/member'));
 
 //products
 app.use('/dekrub-shop/product', require('./routes/product/index'));
 app.use('/dekrub-shop/product/category', require('./routes/product/category'));
+
 //Order
 app.use('/dekrub-shop/order', require('./routes/order/index'));
+
+//comnission
+app.use('/dekrub-shop/commission', require('./routes/commission/index'));
 
 const port = process.env.PORT || 9060;
 
