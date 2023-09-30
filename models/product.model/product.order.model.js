@@ -23,7 +23,7 @@ const orderproduct = new mongoose.Schema({
             timestamp: {type: String},
         }]
     },
-    money_slip: [{
+    picture: [{
         type: String,
     }],
     totalprice: {type: Number, required: true},

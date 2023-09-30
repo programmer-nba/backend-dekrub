@@ -12,5 +12,6 @@ router.delete("/delete/:id", authAdmin, product.delete);
 
 //order
 router.post("/order", auth, productOrder.order);
+router.put("/order/updatepicture/:id", auth, productOrder.updatePictures)
 
 module.exports = router;

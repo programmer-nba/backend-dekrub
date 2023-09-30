@@ -5,10 +5,6 @@ const commission_week = new mongoose.Schema({
     data: { type: [{
         member_number: {type: String},
         lv: {type: String},
-        iden: {type: String},
-        name: {type: String},
-        address: {type: String},
-        tel: {type: String},
         commission: {type: Number},
         vat3percent: {type: Number},
         remainding_commission: {type: Number},
