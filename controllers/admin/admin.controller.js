@@ -1,6 +1,8 @@
 const {Admins, validate} = require('../../models/admin.model');
 const bcrypt = require("bcrypt");
 const Joi = require('joi');
+const dayjs = require("dayjs");
+
 exports.addUser = async(req, res)=>{
     try{
         const {error} = validate(req.body);
@@ -13,6 +15,14 @@ exports.addUser = async(req, res)=>{
             return res.status(400).send({status: false,message: 'ชื่อผู้ใช้งานนี้มีในระบบเรียบร้อยแล้ว'})
         }
         const encrytedPassword = await bcrypt.hash(req.body.password, 10);
+        const data = {
+            name: rea.body.name,
+            username: req.body.username,
+            password: req.body.password,
+            position: "admin",
+            date_start: dayjs(Date.now()).format(),
+        }
+        
         const user = await Admins.create({...req.body, password:encrytedPassword});
         if(user){
             return res.status(201).send({status: true, message: 'เพิ่มผู้ใช้งานเรียบร้อยแล้ว'})
