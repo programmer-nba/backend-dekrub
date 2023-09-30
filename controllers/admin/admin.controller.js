@@ -14,16 +14,10 @@ exports.addUser = async(req, res)=>{
         if(username){
             return res.status(400).send({status: false,message: 'ชื่อผู้ใช้งานนี้มีในระบบเรียบร้อยแล้ว'})
         }
-        const encrytedPassword = await bcrypt.hash(req.body.password, 10);
-        const data = {
-            name: rea.body.name,
-            username: req.body.username,
-            password: req.body.password,
-            position: "admin",
-            date_start: dayjs(Date.now()).format(),
-        }
-        
-        const user = await Admins.create({...req.body, password:encrytedPassword});
+        const position = 'admin';
+        const status = true;
+        const encrytedPassword = await bcrypt.hash(req.body.password, 10);    
+        const user = await Admins.create({...req.body, password:encrytedPassword, position: position, status: status});
         if(user){
             return res.status(201).send({status: true, message: 'เพิ่มผู้ใช้งานเรียบร้อยแล้ว'})
         }else{

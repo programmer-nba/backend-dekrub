@@ -17,7 +17,7 @@ const validate = (data) => {
       name: Joi.string().required().label("กรุณากรอกชื่อผู้ใช้ด้วย"),
       username: Joi.string().required().label("กรุณากรอกไอดีผู้ใช้ด้วย"),
       password : Joi.string().required().label('กรุณากรอกรหัสผู้ใช้ด้วย'),
-      position: Joi.string().required().label("กรุณากรอกเลเวลผู้ใช้ด้วย"),
+      position: Joi.string(),
       status: Joi.boolean().default(true),
       date_start: Joi.date().raw().default(Date.now()),
     });
