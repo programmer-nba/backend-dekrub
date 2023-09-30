@@ -14,6 +14,7 @@ const orderproduct = new mongoose.Schema({
             product_detail: {type: String, required: true},
             quantity: {type: Number, required: true},
             price: {type: Number, required: true},
+            totalprice: {type: Number, required: true},
         }]
     },
     status: {
@@ -22,6 +23,9 @@ const orderproduct = new mongoose.Schema({
             timestamp: {type: String},
         }]
     },
+    money_slip: [{
+        type: String,
+    }],
     totalprice: {type: Number, required: true},
     timestamp: {type: Date, default: Date.now() }
 })
@@ -35,6 +39,7 @@ const validate = (data) => {
         customer_address: Joi.string().required().allow("").label("โปรดกรอกที่อยู่ลูกค้า"),
         customer_line: Joi.string().required().allow("").label("โปรดกรอกไลน์ลูกค้า"),
         product_id: Joi.string().required().label("โปรดกรอกรหัสสินค้า"),
+        money_slip: Joi.string().required().label("โปรแนบหลักฐานการโอนเงิน"),
         quantity: Joi.number().required().label("โปรดกรอกจำนวนสินค้า")
     })
     return Schema.validate(data);

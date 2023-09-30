@@ -13,7 +13,7 @@ const ProductSchema = new mongoose.Schema({
     category: {type: String, required: true},
 });
 
-const Product = new mongoose.model("productDekrup", ProductSchema);
+const Product = mongoose.model("productDekrup", ProductSchema);
 
 const validate = (data) => {
     const Schema = Joi.onject({
