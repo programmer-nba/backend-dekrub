@@ -33,7 +33,10 @@ app.use('/dekrub-shop/order', require('./routes/order/index'));
 app.use('/dekrub-shop/commission', require('./routes/commission/index'));
 
 //more
-app.use('/dekrub-shop/more/function_more', require('./routes/more/function.more'))
+app.use('/dekrub-shop/more/function_more', require('./routes/more/function.more'));
+
+//Thailand
+app.use("/dekrub-shop/thailand", require("./routes/thailand"));
 
 const port = process.env.PORT || 9060;
 
