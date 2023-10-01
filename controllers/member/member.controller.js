@@ -89,6 +89,33 @@ exports.getById = async(req,res)=>{
     }
 }
 
+
+//ดึงข้อมูลโดย _id
+exports.getMemberRef = async(req,res)=>{
+    try{
+        const user = await Members.findOne({ member_ref: req.params.member_ref});
+        console.log(user)
+        if(user){
+            const res_data = {
+                member_ref: user.member_ref,
+                name: user.name,
+                tel: user.tel,
+                address: user.address,
+                subdistrict: user.subdistrict,
+                district: user.district,
+                province: user.province,
+                postcode: user.postcode,
+            }
+            return res.status(200).send({status: true, data: res_data});
+        }else{
+            return res.status(400).send({status:false, message: 'ไม่พบข้อมูลในระบบ'})
+        }
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({status: false, message: 'มีบางอย่างผิดพลาด'})
+    }
+}
+
 //ลบข้อมูลผู้ใช้งาน
  exports.delUser = async(req, res)=>{
     try{
