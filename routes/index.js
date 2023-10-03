@@ -10,6 +10,7 @@ router.get('/me',auth, main.me);
 
 //เปลี่ยนรหัสผ่านใหม่
 router.post('/set_password', authPassword, main.setPassword);
+router.post('/reset_password', main.resetPassword);
 
 
 module.exports = router;

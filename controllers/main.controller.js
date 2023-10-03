@@ -262,6 +262,30 @@ exports.setPassword = async (req, res) => {
   }
 };
 
+//แก้ไขหรือตั้งรหัสผ่านใหม่
+exports.resetPassword = async (req, res) => {
+  try {
+    const id = req.body.member_number;
+    const member = await Members.findOne({member_number: id});
+    const encrytedPassword = await bcrypt.hash(req.body.password, 10);
+    const change_password = await Members.findByIdAndUpdate(member._id, {
+      password: encrytedPassword,
+    });
+    if (change_password) {
+      return res
+        .status(200)
+        .send({status: true, message: "ทำการเปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว"});
+    } else {
+      return res
+        .status(400)
+        .send({status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ"});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
 const checkMembers = async (req, res) => {
   try {
     const {username, password} = req.body;
