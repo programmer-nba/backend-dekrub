@@ -2,7 +2,7 @@ const {Product} = require("../../models/product.model/product.model");
 const {
   OrderProductModel,
 } = require("../../models/product.model/product.order.model");
-const {Members} = require("../../models/member/member.model");
+const {Members} = require("../../models/member.model/member.model");
 const {
   Commission_week,
 } = require("../../models/commission/commission.week.model");
@@ -233,7 +233,7 @@ async function uploadFileCreate(req, res, {i, reqFiles}) {
   const filePath = req[i].path;
   let fileMetaData = {
     name: req.originalname,
-    parents: [process.env.GOOGLE_DRIVE_IMAGE_ACT_SERVICE_ORDER],
+    parents: [process.env.GOOGLE_DRIVE_IMAGE_PRODUCT],
   };
   let media = {
     body: fs.createReadStream(filePath),

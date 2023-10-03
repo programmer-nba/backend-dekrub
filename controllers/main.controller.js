@@ -1,5 +1,5 @@
 const {Admins} = require("../models/admin.model");
-const {Members} = require("../models/member/member.model");
+const {Members} = require("../models/member.model/member.model");
 const {LoginHistory} = require("../models/login.history.model");
 const {TokenList} = require("../models/token.list.model");
 const token_decode = require("../lib/token_decode");

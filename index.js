@@ -28,6 +28,7 @@ app.use('/dekrub-shop/product/category', require('./routes/product/category'));
 
 //Order
 app.use('/dekrub-shop/order', require('./routes/order/index'));
+app.use('/dekrub-shop/order/member', require('./routes/order/member.new'));
 
 //comnission
 app.use('/dekrub-shop/commission', require('./routes/commission/index'));
