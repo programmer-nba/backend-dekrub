@@ -58,6 +58,7 @@ module.exports.create = async (req, res) => {
           name: req.body.name,
           category: req.body.categoryid,
           detail: req.body.detail,
+          cost: Number(req.body.cost),
           price: Number(req.body.price),
           quantity: Number(req.body.quantity),
         };
