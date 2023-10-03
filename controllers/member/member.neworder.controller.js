@@ -2,6 +2,10 @@ const {
   NewOrderMembers,
   validate,
 } = require("../../models/member.model/member.neworder.model.js");
+const {Members} = require("../../models/member.model/member.model.js");
+const {
+  Commission_day,
+} = require("../../models/commission/commission.day.model.js");
 const {google} = require("googleapis");
 const multer = require("multer");
 const fs = require("fs");
@@ -185,6 +189,33 @@ module.exports.confirm = async (req, res) => {
       timestamp: dayjs(Date.now()).format(),
     });
     updateStatus.save();
+    const member = await Members.findOne({
+      member_number: updateStatus.member_number,
+    });
+    await Members.findByIdAndUpdate(member._id, {
+      status: true,
+    });
+    const upline = [member.upline.lv1, member.upline.lv2];
+    let i = 0;
+    const commission = 399;
+    const vat3percent = (commission * 3) / 100;
+    const remainding_commission = commission - vat3percent;
+    const storeData = [];
+    const integratedData = {
+      member_number: upline[0],
+      commission: commission,
+      vat3percent: vat3percent,
+      remainding_commission: remainding_commission,
+    }
+    if (integratedData) {
+      storeData.push(integratedData);
+    }
+    const commissionData = {
+      data: storeData,
+      from_member: updateStatus.member_number,
+    }
+    const commission_day = new Commission_day(commissionData);
+    commission_day.save();
   } else {
     return res.status(403).send({message: "เกิดข้อผิดพลาด"});
   }

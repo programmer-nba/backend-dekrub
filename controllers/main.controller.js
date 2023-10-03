@@ -50,12 +50,6 @@ exports.register = async (req, res) => {
     const member_number = `DK969${count.toString().padStart(8, "0")}`;
     const date = dayjs(Date.now()).format();
     const encrytedPassword = await bcrypt.hash(req.body.password, 10);
-    //commission
-    const commission = 150;
-    //vat commission
-    const vat = (commission * 3) / 100;
-    //real commission
-    const realcommission = commission - vat;
     if (req.body.username) {
       const memberRef = await Members.findOne({
         member_number: req.body.member_ref,
@@ -80,22 +74,6 @@ exports.register = async (req, res) => {
         });
       }
     }
-    const storeData = [];
-    const integratedData = {
-      member_number: req.body.member_ref,
-      commission: commission,
-      vat3percent: vat,
-      remainding_commission: realcommission,
-    };
-    if (integratedData) {
-      storeData.push(integratedData);
-    }
-    const commissionData = {
-      data: storeData,
-      from_member: member_number,
-    };
-    const commission_day = new Commission_day(commissionData);
-    commission_day.save();
     //เพิ่มข้อมูลลงฐานข้อมูล
     const member = await Members.create(data);
     if (member) {
