@@ -54,6 +54,23 @@ module.exports.GetAllDay = async (req, res) => {
   }
 };
 
+//get all withdraw commission day
+module.exports.GetWithdrawDay = async (req, res) => {
+  try {
+    const withdrawDay = await WithdrawDays.find();
+    return res
+      .status(200)
+      .send({status: true, message: "ดึงข้อมูลสำเร็จ", data: withdrawDay});
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({
+      status: false,
+      message: "มีบางอย่างผิดพลาด",
+      err: "server side error",
+    });
+  }
+};
+
 //get all commission week
 module.exports.GetAllWeek = async (req, res) => {
   try {
@@ -61,6 +78,23 @@ module.exports.GetAllWeek = async (req, res) => {
     return res
       .status(200)
       .send({status: true, message: "ดึงข้อมูลสำเร็จ", data: commission_week});
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({
+      status: false,
+      message: "มีบางอย่างผิดพลาด",
+      err: "server side error",
+    });
+  }
+};
+
+//get all withdraw commission day
+module.exports.GetWithdrawWeek = async (req, res) => {
+  try {
+    const withdrawWeek = await WithdrawWeeks.find();
+    return res
+      .status(200)
+      .send({status: true, message: "ดึงข้อมูลสำเร็จ", data: withdrawWeek});
   } catch (err) {
     console.log(err);
     return res.status(500).send({
