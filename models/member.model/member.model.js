@@ -11,6 +11,8 @@ const MemberSchema = new mongoose.Schema({
   subdistrict: {type: String, required: true},
   district: {type: String, required: true},
   province: {type: String, required: true},
+  commission_day: {type: Number},
+  commission_week: {type: Number},
   bank: {
     name: {type: String, required: false, default: "-"},
     number: {type: String, required: false, default: "-"},
@@ -46,6 +48,8 @@ const validate = (data) => {
     subdistrict: Joi.string().required().label("ไม่พบตำบล"),
     district: Joi.string().required().label("ไม่พบ เขต/อำเภอ"),
     province: Joi.string().required().label("ไม่พบจังหวัด"),
+    commission_day: Joi.number().default(0),
+    commission_week: Joi.number().default(0),
     bank: {
       name: Joi.string().default("-"),
       number: Joi.string().default("-"),

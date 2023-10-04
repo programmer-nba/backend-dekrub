@@ -244,8 +244,10 @@ exports.setPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const id = req.body.member_number;
-    const member = await Members.findOne({member_number: id});
-    const encrytedPassword = await bcrypt.hash(req.body.password, 10);
+    const username = req.body.username;
+    const member = await Members.findOne({member_number: id, username: username});
+    const encrytedPassword = await bcrypt.hash(member.tel, 10);
+    console.log(encrytedPassword)
     const change_password = await Members.findByIdAndUpdate(member._id, {
       password: encrytedPassword,
     });
