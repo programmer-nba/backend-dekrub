@@ -183,6 +183,7 @@ module.exports.GetById = async (req, res) => {
 //confirm order
 module.exports.confirm = async (req, res) => {
   const updateStatus = await NewOrderMembers.findOne({_id: req.params.id});
+  console.log(updateStatus)
   if (updateStatus) {
     updateStatus.status.push({
       status: "ยืนยันออเดอร์",
@@ -197,7 +198,7 @@ module.exports.confirm = async (req, res) => {
     });
     const upline = [member.upline.lv1, member.upline.lv2];
     let i = 0;
-    const commission = 399;
+    const commission = updateStatus.amount - 249;
     const vat3percent = (commission * 3) / 100;
     const remainding_commission = commission - vat3percent;
     const storeData = [];
@@ -214,8 +215,16 @@ module.exports.confirm = async (req, res) => {
       data: storeData,
       from_member: updateStatus.member_number,
     }
+    console.log(commissionData)
     const commission_day = new Commission_day(commissionData);
     commission_day.save();
+    const member2 = await Members.findOne({
+      member_number: upline[0],
+    })
+    const new_commission_day = member2.commission_day + remainding_commission;
+    await Members.findByIdAndUpdate(member2._id, {
+      commission_day: new_commission_day,
+    });
   } else {
     return res.status(403).send({message: "เกิดข้อผิดพลาด"});
   }
@@ -238,5 +247,5 @@ module.exports.cancel = async (req, res) => {
   }
   return res
     .status(200)
-    .send({message: "ยืนยันการรับออร์เดอร์สำเร็จ", data: updateStatus});
+    .send({message: "ยกเลิกออร์เดอร์สำเร็จ", data: updateStatus});
 };

@@ -35,6 +35,8 @@ app.use('/dekrub-shop/commission', require('./routes/commission/index'));
 
 //more
 app.use('/dekrub-shop/more/function_more', require('./routes/more/function.more'));
+app.use('/dekrub-shop/delete/image', require('./routes/more/delete.image'));
+app.use('/dekrub-shop/image/collection', require('./routes/more/image.collection'));
 
 //Thailand
 app.use("/dekrub-shop/thailand", require("./routes/thailand"));
