@@ -66,6 +66,8 @@ exports.register = async (req, res) => {
           password: encrytedPassword,
           upline: upline,
           timestamp: date,
+          commission_day: 0,
+          commission_week: 0,
         };
       } else {
         return res.status(400).send({
