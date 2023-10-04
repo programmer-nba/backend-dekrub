@@ -3,6 +3,7 @@ const Joi = require('joi');
 
 const orderproduct = new mongoose.Schema({
     receiptnumber: {type: String, required: true},
+    member_number: {type: String, required: true},
     customer_name: {type: String},
     customer_tel: {type: String},
     customer_address: {type: String},
@@ -34,6 +35,7 @@ const OrderProductModel = new mongoose.model("orderproduct", orderproduct)
 
 const validate = (data) => {
     const Schema = Joi.object({
+        member_number: Joi.string().required().label("ไม่พบเลข"),
         customer_name: Joi.string().required().allow("").label("โปรดกรอกชื่อลูกค้า"),
         customer_tel: Joi.string().required().allow("").label("โปรดกรอกเบอร์โทรลูกค้า"),
         customer_address: Joi.string().required().allow("").label("โปรดกรอกที่อยู่ลูกค้า"),

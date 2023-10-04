@@ -196,8 +196,7 @@ module.exports.confirm = async (req, res) => {
     await Members.findByIdAndUpdate(member._id, {
       status: true,
     });
-    const upline = [member.upline.lv1, member.upline.lv2];
-    let i = 0;
+    const upline = [member.upline.lv1];
     const commission = updateStatus.amount - 249;
     const vat3percent = (commission * 3) / 100;
     const remainding_commission = commission - vat3percent;

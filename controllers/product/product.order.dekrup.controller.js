@@ -79,70 +79,10 @@ module.exports.order = async (req, res) => {
         });
       }
     }
-
-    const member = await Members.findOne({
-      member_number: req.body.member_number,
-    });
-    const upline = [member.upline.lv1, member.upline.lv2];
-    const validUplines = upline.filter((item) => item !== "-");
-    const uplineData = [];
-    let i = 0;
-    for (const item of validUplines) {
-      const include = await Members.findOne({member_number: item});
-      if (include !== null) {
-        uplineData.push({
-          member_number: item,
-          iden: include.iden.number,
-          name: include.name,
-          address: {
-            address: include.address,
-            subdistrict: include.subdistrict,
-            district: include.district,
-            province: include.province,
-            postcode: include.postcode,
-          },
-          tel: include.tel,
-          level: i + 1,
-        });
-        i++;
-      }
-    }
-
-    const uplineData2 = [];
-    const commission = 10;
-    const vat3percent = (commission * 3) / 100;
-    const remainding_commission = commission - vat3percent;
-    for (const item of uplineData) {
-      let integratedData;
-      if (item.level == "1") {
-        integratedData = {
-          member_number: item.member_number,
-          lv: item.level,
-          commission: commission,
-          vat3percent: vat3percent,
-          remainding_commission: remainding_commission,
-        };
-      }
-      if (item.level == "2") {
-        integratedData = {
-          member_number: item.member_number,
-          lv: item.level,
-          commission: commission,
-          vat3percent: vat3percent,
-          remainding_commission: remainding_commission,
-        };
-      }
-      if (integratedData) {
-        uplineData2.push(integratedData);
-      }
-    }
-    const commission_week = {
-      data: uplineData2,
-      orderid: receiptnumber,
-    };
     const totalprice = orders.reduce((sum, el) => sum + el.totalprice, 0);
     const data = {
       receiptnumber: receiptnumber,
+      member_number: req.body.member_number,
       customer_name: req.body.customer_name,
       customer_tel: req.body.customer_tel,
       customer_address: req.body.customer_address,
@@ -156,9 +96,6 @@ module.exports.order = async (req, res) => {
       ],
       totalprice: totalprice,
     };
-
-    const com_week = new Commission_week(commission_week);
-    com_week.save();
     const orderDekrup = await OrderProductModel.create(data);
     if (orderDekrup) {
       return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});

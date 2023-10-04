@@ -4,12 +4,11 @@ const Joi = require('joi');
 const commission_week = new mongoose.Schema({
     data: { type: [{
         member_number: {type: String},
-        lv: {type: String},
         commission: {type: Number},
         vat3percent: {type: Number},
         remainding_commission: {type: Number},
     }] },
-    orderid: {type: String},
+    from_member: {type: String},
     timestamp: {type: Date, default: Date.now()},
 }, {timestamps: true})
 
