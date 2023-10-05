@@ -33,6 +33,9 @@ app.use('/dekrub-shop/order/member', require('./routes/order/member.new'));
 //comnission
 app.use('/dekrub-shop/commission', require('./routes/commission/index'));
 
+//percent commission
+app.use('/dekrub-shop/percent', require('./routes/commission/percent.commission'));
+
 //more
 app.use('/dekrub-shop/more/function_more', require('./routes/more/function.more'));
 app.use('/dekrub-shop/delete/image', require('./routes/more/delete.image'));
