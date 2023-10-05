@@ -3,6 +3,7 @@ const {
   validate,
 } = require("../../models/member.model/member.neworder.model.js");
 const {Members} = require("../../models/member.model/member.model.js");
+const { Percent_Commission } = require("../../models/commission/percent.commission.model.js");
 const {
   Commission_day,
 } = require("../../models/commission/commission.day.model.js");
@@ -43,7 +44,6 @@ module.exports.order = async (req, res) => {
         return res.status(403).send({message: "มีบางอย่างผิดพลาด", data: err});
       }
       const reqFiles = [];
-
       if (!req.files) {
         return res.status(500).send({
           message: "มีบางอย่างผิดพลาด",
@@ -183,7 +183,7 @@ module.exports.GetById = async (req, res) => {
 //confirm order
 module.exports.confirm = async (req, res) => {
   const updateStatus = await NewOrderMembers.findOne({_id: req.params.id});
-  console.log(updateStatus)
+  const percent = await Percent_Commission.findOne({code: 'register'});
   if (updateStatus) {
     updateStatus.status.push({
       status: "ยืนยันออเดอร์",
@@ -197,7 +197,7 @@ module.exports.confirm = async (req, res) => {
       status: true,
     });
     const upline = [member.upline.lv1];
-    const commission = updateStatus.amount - 249;
+    const commission = percent.level_one;
     const vat3percent = (commission * 3) / 100;
     const remainding_commission = commission - vat3percent;
     const storeData = [];
@@ -214,7 +214,6 @@ module.exports.confirm = async (req, res) => {
       data: storeData,
       from_member: updateStatus.member_number,
     }
-    console.log(commissionData)
     const commission_day = new Commission_day(commissionData);
     commission_day.save();
     const member2 = await Members.findOne({

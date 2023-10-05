@@ -6,7 +6,11 @@ const MemberOrderNewSchema = new mongoose.Schema({
   member_number: {type: String, required: true},
   name: {type: String, required: true},
   amount: {type: Number, required: true},
-  slip_img: {type: String},
+  slip_img: [
+    {
+      type: String,
+    },
+  ],
   status: {
     type: [
       {
