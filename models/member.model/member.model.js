@@ -28,6 +28,7 @@ const MemberSchema = new mongoose.Schema({
   },
   upline: {
     lv1: {type: String, required: false, default: "-"},
+    lv2: {type: String, required: false, default: "-"},
   },
   position: {type: String, required: true},
   timestamp: {type: Date, required: true},
