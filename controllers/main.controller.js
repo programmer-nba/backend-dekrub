@@ -207,6 +207,44 @@ exports.me = async (req, res) => {
   }
 };
 
+//เรียกข้อมูลมูลผู้ใช้
+exports.edit = async (req, res) => {
+  try {
+    const token = token_decode(req.headers["token"]);
+    const member = await Members.findOne({_id: token._id});
+
+    const bank = req.body.back ? req.body.back : member.bank;
+    const iden = req.body.iden ? req.body.iden : member.iden;
+    const name = req.body.name ? req.body.name : member.name;
+    const tel = req.body.tel ? req.body.tel : member.tel;
+    const address = req.body.address ? req.body.address : member.address;
+    const subdistrict = req.body.subdistrict ? req.body.subdistrict : member.subdistrict;
+    const district = req.body.district ? req.body.district : member.district;
+    const provide = req.body.provider ? req.body.provider : member.province;
+    const commission_day = req.body.commission_day ? req.body.commission : member.commission_day;
+    const commission_week = req.body.commission_week ? req.body.commission : member.commission_week;
+    if (member) {
+      await Members.findByIdAndUpdate(token._id, {
+        bank: bank,
+        iden: iden,
+        name: name,
+        tel: tel,
+        address: address,
+        subdistrict: subdistrict,
+        district: district,
+        provide: provide,
+        commission_day: commission_day,
+        commission_week: commission_week,
+      });
+    } else {
+      return res.status(403).send({message: "เกิดข้อผิดพลาด"});
+    }
+
+  } catch (err) {
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
 //แก้ไขหรือตั้งรหัสผ่านใหม่
 exports.setPassword = async (req, res) => {
   try {
