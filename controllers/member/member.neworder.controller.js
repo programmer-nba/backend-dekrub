@@ -195,9 +195,9 @@ module.exports.confirm = async (req, res) => {
     const member = await Members.findOne({
       member_number: updateStatus.member_number,
     });
-    const upline = [member.upline.lv1, member.upline.lv2];
+    const upline = [member.upline];
 
-    const validLevel = upline.filter(item => item !== null);
+    // const validLevel = upline.filter(item => item !== '-');
 
     const commission_level1 = percent.level_two;
     const vat_level1 = (commission_level1 * 3) / 100;
@@ -207,7 +207,7 @@ module.exports.confirm = async (req, res) => {
     const vat_level2 = (commission_level1 * 3) / 100;
     const remainding_commission_level2 = commission_level2 - vat_level2;
 
-    for (const TeamMemberData of validLevel) {
+    for (const TeamMemberData of upline) {
       if (TeamMemberData.lv1 !== '-') {
         const storeData = [];
         const integratedData = {
