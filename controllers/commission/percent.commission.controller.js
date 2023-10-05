@@ -78,6 +78,7 @@ module.exports.Update = async (req, res) => {
       {
         level_one: req.body.level_one,
         level_two: req.body.level_two,
+        level_three: req.body.level_three,
         timestamp: dayjs(Date.now()).format(""),
       }
     );

@@ -5,6 +5,7 @@ const percent_commission = new mongoose.Schema({
     code: {type: String},
     level_one: {type: Number},
     level_two: {type: Number},
+    level_three: {type: Number},
     timestamp: {type: Date, default: Date.now()},
 })
 
