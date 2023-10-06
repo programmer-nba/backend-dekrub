@@ -41,90 +41,70 @@ const storage = multer.diskStorage({
 
 module.exports.order = async (req, res) => {
   try {
-    let upload = multer({storage: storage}).array("imgCollection", 20);
-    upload(req, res, async function (err) {
-      if (err) {
-        return res.status(403).send({message: "มีบางอย่างผิดพลาด", data: err});
-      }
-      const reqFiles = [];
-      if (!req.files) {
-        res.status(500).send({
-          message: "มีบางอย่างผิดพลาด",
-          data: "No Request Files",
-          status: false,
+    const orders = [];
+    const pipeline = [
+      {
+        $group: {_id: 0, count: {$sum: 1}},
+      },
+    ];
+    const count = await OrderProductModel.aggregate(pipeline);
+    const countValue = count.length > 0 ? count[0].count + 1 : 1;
+    const receiptnumber = `PD${dayjs(Date.now()).format("YYYYMMDD")}${countValue
+      .toString()
+      .padStart(5, "0")}`;
+    for (let item of req.body.product_detail) {
+      const product = await Product.findOne({
+        _id: item.product_id,
+      });
+
+      if (product) {
+        const price = product.price * item.quantity;
+        orders.push({
+          product_id: product._id,
+          product_name: product.name,
+          product_detail: product.detail,
+          price: product.price,
+          quantity: item.quantity,
+          totalprice: price,
         });
-      } else {
-        const url = req.protocol + "://" + req.get("host");
-        for (var i = 0; i < req.files.length; i++) {
-          await uploadFileCreate(req.files, res, {i, reqFiles});
-        }
-        const orders = [];
-        const pipeline = [
-          {
-            $group: {_id: 0, count: {$sum: 1}},
-          },
-        ];
-        const count = await OrderProductModel.aggregate(pipeline);
-        const countValue = count.length > 0 ? count[0].count + 1 : 1;
-        const receiptnumber = `PD${dayjs(Date.now()).format(
-          "YYYYMMDD"
-        )}${countValue.toString().padStart(5, "0")}`;
-        for (let item of req.body.product_detail) {
-          const product = await Product.findOne({
-            _id: item.product_id,
-          });
-
-          if (product) {
-            const price = product.price * item.quantity;
-            orders.push({
-              product_id: product._id,
-              product_name: product.name,
-              product_detail: product.detail,
-              price: product.price,
-              quantity: item.quantity,
-              totalprice: price,
-            });
-          }
-
-          if (product.quantity < item.quantity) {
-            return res.status(403).send({message: "จำนวนสินค้าไม่เพียงพอ"});
-          } else {
-            const new_quantity = product.quantity - item.quantity;
-
-            await Product.findByIdAndUpdate(product._id, {
-              quantity: new_quantity,
-            });
-          }
-        }
-        const totalprice = orders.reduce((sum, el) => sum + el.totalprice, 0);
-        const data = {
-          receiptnumber: receiptnumber,
-          member_number: req.body.member_number,
-          customer_name: req.body.customer_name,
-          customer_tel: req.body.customer_tel,
-          customer_address: req.body.customer_address,
-          customer_line: req.body.customer_line,
-          product_detail: orders,
-          status: [
-            {
-              status: "รอตรวจสอบ",
-              timestamp: dayjs(Date.now()).format(""),
-            },
-          ],
-          totalprice: totalprice,
-          picture: reqFiles[0],
-        };
-        const orderDekrup = await OrderProductModel.create(data);
-        if (orderDekrup) {
-          return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
-        } else {
-          return res.status(403).send({
-            status: false,
-            message: "ไม่สามารถบันทึกได้",
-          });
-        }
       }
-    });
+
+      if (product.quantity < item.quantity) {
+        return res.status(403).send({message: "จำนวนสินค้าไม่เพียงพอ"});
+      } else {
+        const new_quantity = product.quantity - item.quantity;
+
+        await Product.findByIdAndUpdate(product._id, {
+          quantity: new_quantity,
+        });
+      }
+    }
+    const totalprice = orders.reduce((sum, el) => sum + el.totalprice, 0);
+    const data = {
+      receiptnumber: receiptnumber,
+      member_number: req.body.member_number,
+      customer_name: req.body.customer_name,
+      customer_tel: req.body.customer_tel,
+      customer_address: req.body.customer_address,
+      customer_line: req.body.customer_line,
+      product_detail: orders,
+      status: [
+        {
+          status: "รอตรวจสอบ",
+          timestamp: dayjs(Date.now()).format(""),
+        },
+      ],
+      totalprice: totalprice,
+    };
+    const orderDekrup = await OrderProductModel.create(data);
+    if (orderDekrup) {
+      return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
+    } else {
+      return res.status(403).send({
+        status: false,
+        message: "ไม่สามารถบันทึกได้",
+      });
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).send({message: "Internal Server Error"});
