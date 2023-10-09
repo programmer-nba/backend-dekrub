@@ -4,12 +4,87 @@ const {LoginHistory} = require("../models/login.history.model");
 const {TokenList} = require("../models/token.list.model");
 const token_decode = require("../lib/token_decode");
 const {Commission_day} = require("../models/commission/commission.day.model");
+const {ImageBank} = require("../models/member.model/image_bank.model");
+const {ImageIden} = require("../models/member.model/image_iden.model");
 
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const dayjs = require("dayjs");
 require("dotenv").config();
+
+const {google} = require("googleapis");
+const multer = require("multer");
+const fs = require("fs");
+
+const CLIENT_ID = process.env.GOOGLE_DRIVE_CLIENT_ID;
+const CLIENT_SECRET = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
+const REDIRECT_URI = process.env.GOOGLE_DRIVE_REDIRECT_URI;
+const REFRESH_TOKEN = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
+
+const oauth2Client = new google.auth.OAuth2(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI
+);
+
+oauth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
+const drive = google.drive({
+  version: "v3",
+  auth: oauth2Client,
+});
+
+const storage = multer.diskStorage({
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+    // console.log(file.originalname);
+  },
+});
+
+//update image
+async function uploadFileCreate(req, res, {i, reqFiles}) {
+  const filePath = req[i].path;
+  let fileMetaData = {
+    name: req.originalname,
+    parents: [process.env.GOOGLE_DRIVE_IMAGE_PRODUCT],
+  };
+  let media = {
+    body: fs.createReadStream(filePath),
+  };
+  try {
+    const response = await drive.files.create({
+      resource: fileMetaData,
+      media: media,
+    });
+
+    generatePublicUrl(response.data.id);
+    reqFiles.push(response.data.id);
+  } catch (error) {
+    res.status(500).send({message: "Internal Server Error"});
+  }
+}
+
+async function generatePublicUrl(res) {
+  console.log("generatePublicUrl");
+  try {
+    const fileId = res;
+    await drive.permissions.create({
+      fileId: fileId,
+      requestBody: {
+        role: "reader",
+        type: "anyone",
+      },
+    });
+    const result = await drive.files.get({
+      fileId: fileId,
+      fields: "webViewLink, webContentLink",
+    });
+    console.log(result.data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({message: "Internal Server Error"});
+  }
+}
 
 //Validate Register
 const vali_register = (data) => {
@@ -218,11 +293,17 @@ exports.edit = async (req, res) => {
     const name = req.body.name ? req.body.name : member.name;
     const tel = req.body.tel ? req.body.tel : member.tel;
     const address = req.body.address ? req.body.address : member.address;
-    const subdistrict = req.body.subdistrict ? req.body.subdistrict : member.subdistrict;
+    const subdistrict = req.body.subdistrict
+      ? req.body.subdistrict
+      : member.subdistrict;
     const district = req.body.district ? req.body.district : member.district;
     const provide = req.body.provider ? req.body.provider : member.province;
-    const commission_day = req.body.commission_day ? req.body.commission : member.commission_day;
-    const commission_week = req.body.commission_week ? req.body.commission : member.commission_week;
+    const commission_day = req.body.commission_day
+      ? req.body.commission
+      : member.commission_day;
+    const commission_week = req.body.commission_week
+      ? req.body.commission
+      : member.commission_week;
     if (member) {
       await Members.findByIdAndUpdate(token._id, {
         bank: bank,
@@ -239,7 +320,6 @@ exports.edit = async (req, res) => {
     } else {
       return res.status(403).send({message: "เกิดข้อผิดพลาด"});
     }
-
   } catch (err) {
     return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
   }
@@ -285,9 +365,12 @@ exports.resetPassword = async (req, res) => {
   try {
     const id = req.body.member_number;
     const username = req.body.username;
-    const member = await Members.findOne({member_number: id, username: username});
+    const member = await Members.findOne({
+      member_number: id,
+      username: username,
+    });
     const encrytedPassword = await bcrypt.hash(member.tel, 10);
-    console.log(encrytedPassword)
+    console.log(encrytedPassword);
     const change_password = await Members.findByIdAndUpdate(member._id, {
       password: encrytedPassword,
     });
@@ -357,3 +440,332 @@ const checkMembers = async (req, res) => {
     res.status(500).send({message: "Internal Server Error"});
   }
 };
+
+exports.verify_bank = async (req, res) => {
+  try {
+    //UPLOAD TO GOOGLE DRIVE
+    let upload = multer({storage: storage}).fields([
+      {name: "bank_image", maxCount: 10},
+    ]);
+    upload(req, res, async function (err) {
+      if (req.files.bank_image) {
+        console.log("มีรูปเข้ามา");
+        await uploadImageBank(req, res);
+      } else {
+        return res.status(400).send({status: false, message: "ไม่พบรูปภาพ"});
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
+exports.verify_iden = async (req, res) => {
+  try {
+    //UPLOAD TO GOOGLE DRIVE
+    let upload = multer({storage: storage}).fields([
+      {name: "iden_image", maxCount: 10},
+    ]);
+    upload(req, res, async function (err) {
+      console.log(req.body.number);
+      if (req.files.iden_image) {
+        console.log("มีรูปเข้ามา");
+        await uploadImageIden(req, res);
+      } else {
+        return res.status(400).send({status: false, message: "ไม่พบรูปภาพ"});
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
+exports.confirmBank = async (req, res) => {
+  try {
+    const updateStatus = await ImageBank.findOne({_id: req.params.id});
+    const member = await Members.findOne({
+      member_number: updateStatus.member_number,
+    });
+    if (updateStatus) {
+      updateStatus.status.push({
+        status: "ยืนยันเรียบร้อยแล้ว",
+        timestamp: dayjs(Date.now()).format(),
+      });
+      updateStatus.save();
+      let data = {
+        ...member.bank,
+        remark: "ยืนยันเรียบร้อยแล้ว",
+        status: true,
+      };
+      const res_update = await Members.findByIdAndUpdate(member._id, {
+        bank: data,
+      });
+      if (res_update) {
+        res.status(200).send({
+          message: "ส่งข้อมูลเรียบร้อย",
+          status: true,
+        });
+      } else {
+        res.status(404).send({
+          message: "เกิดข้อผิดพลาด",
+          status: false,
+        });
+      }
+    } else {
+      return res.status(403).send({message: "เกิดข้อผิดพลาด"});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
+exports.confirmIden = async (req, res) => {
+  try {
+    const updateStatus = await ImageIden.findOne({_id: req.params.id});
+    const member = await Members.findOne({
+      member_number: updateStatus.member_number,
+    });
+    if (updateStatus) {
+      updateStatus.status.push({
+        status: "ยืนยันเรียบร้อยแล้ว",
+        timestamp: dayjs(Date.now()).format(),
+      });
+      updateStatus.save();
+      let data = {
+        ...member.iden,
+        remark: "ยืนยันเรียบร้อยแล้ว",
+        status: true,
+      };
+      const res_update = await Members.findByIdAndUpdate(member._id, {
+        iden: data,
+      });
+      if (res_update) {
+        res.status(200).send({
+          message: "ส่งข้อมูลเรียบร้อย",
+          status: true,
+        });
+      } else {
+        res.status(404).send({
+          message: "เกิดข้อผิดพลาด",
+          status: false,
+        });
+      }
+    } else {
+      return res.status(403).send({message: "เกิดข้อผิดพลาด"});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
+module.exports.Getverify_iden = async (req, res) => {
+  try {
+    const order = await ImageIden.find();
+    if (order) {
+      return res.status(200).send({
+        status: true,
+        message: "ดึงข้อมูลสำเร็จ",
+        data: order,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .send({message: "มีบางอย่างผิดพลาด", error: "server side error"});
+  }
+};
+
+module.exports.Getverify_idenByid = async (req, res) => {
+  try {
+    const order = await ImageIden.findById(req.params.id);
+    if (order) {
+      return res.status(200).send({
+        status: true,
+        message: "ดึงข้อมูลสำเร็จ",
+        data: order,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      message: "มีบางอย่างผิดพลาด",
+      error: "server side error",
+    });
+  }
+};
+
+module.exports.Getverify_bank = async (req, res) => {
+  try {
+    const order = await ImageBank.find();
+    if (order) {
+      return res.status(200).send({
+        status: true,
+        message: "ดึงข้อมูลสำเร็จ",
+        data: order,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .send({message: "มีบางอย่างผิดพลาด", error: "server side error"});
+  }
+};
+
+module.exports.Getverify_bankByid = async (req, res) => {
+  try {
+    const order = await ImageBank.findById(req.params.id);
+    if (order) {
+      return res.status(200).send({
+        status: true,
+        message: "ดึงข้อมูลสำเร็จ",
+        data: order,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      message: "มีบางอย่างผิดพลาด",
+      error: "server side error",
+    });
+  }
+};
+
+
+async function uploadImageBank(req, res) {
+  try {
+    const filePathImg = req.files.bank_image[0].path;
+    const decode = token_decode(req.headers["token"]);
+    const member = await Members.findById(decode._id);
+    if (!member) {
+      return res
+        .status(400)
+        .send({status: false, message: "ไม่พบผู้ใช้งานนี้ในระบบ"});
+    }
+    //UPLOAD รูป
+    let fileMetaDataImg = {
+      name: req.files.bank_image[0].originalname,
+      parents: [`${process.env.GOOGLE_DRIVE_IMAGE_PRODUCT}`],
+    };
+
+    console.log(fileMetaDataImg);
+
+    let mediaCus = {
+      body: fs.createReadStream(filePathImg),
+    };
+
+    const responseImg = await drive.files.create({
+      resource: fileMetaDataImg,
+      media: mediaCus,
+    });
+    generatePublicUrl(responseImg.data.id);
+    let data = {
+      ...member.bank,
+      name: req.body.name,
+      number: req.body.number,
+      image: responseImg.data.id,
+      remark: "อยู่ระหว่างการตรวจสอบ",
+      status: false,
+    };
+    const res_update = await Members.findByIdAndUpdate(decode._id, {
+      bank: data,
+    });
+    if (res_update) {
+      const data = {
+        member_number: member.member_number,
+        name: member.name,
+        picture: responseImg.data.id,
+        status: [
+          {
+            status: "อยู่ระหว่างการตรวจสอบ",
+            timestamp: dayjs(Date.now()).format(""),
+          },
+        ],
+      };
+      await ImageBank.create(data);
+      res.status(200).send({
+        message: "ส่งข้อมูลเรียบร้อย",
+        status: true,
+      });
+    } else {
+      res.status(404).send({
+        message: `ไม่สามารถสร้างได้`,
+        status: false,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+}
+
+async function uploadImageIden(req, res) {
+  try {
+    const filePathImg = req.files.iden_image[0].path;
+    const decode = token_decode(req.headers["token"]);
+    const member = await Members.findById(decode._id);
+    if (!member) {
+      return res
+        .status(400)
+        .send({status: false, message: "ไม่พบผู้ใช้งานนี้ในระบบ"});
+    }
+    //UPLOAD รูป
+    let fileMetaDataImg = {
+      name: req.files.iden_image[0].originalname,
+      parents: [`${process.env.GOOGLE_DRIVE_IMAGE_PRODUCT}`],
+    };
+
+    console.log(fileMetaDataImg);
+
+    let mediaCus = {
+      body: fs.createReadStream(filePathImg),
+    };
+
+    const responseImg = await drive.files.create({
+      resource: fileMetaDataImg,
+      media: mediaCus,
+    });
+    generatePublicUrl(responseImg.data.id);
+    let data = {
+      ...member.iden,
+      number: req.body.number,
+      image: responseImg.data.id,
+      remark: "อยู่ระหว่างการตรวจสอบ",
+      status: false,
+    };
+    const res_update = await Members.findByIdAndUpdate(decode._id, {
+      iden: data,
+    });
+    if (res_update) {
+      const data = {
+        member_number: member.member_number,
+        name: member.name,
+        picture: responseImg.data.id,
+        status: [
+          {
+            status: "อยู่ระหว่างการตรวจสอบ",
+            timestamp: dayjs(Date.now()).format(""),
+          },
+        ],
+      };
+      await ImageIden.create(data);
+      res.status(200).send({
+        message: "ส่งข้อมูลเรียบร้อย",
+        status: true,
+      });
+    } else {
+      res.status(404).send({
+        message: `ไม่สามารถสร้างได้`,
+        status: false,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+}

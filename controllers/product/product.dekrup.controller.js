@@ -139,6 +139,74 @@ module.exports.GetAll = async (req, res) => {
   }
 };
 
+//get All product
+module.exports.Update = async (req, res) => {
+  try {
+    const product = await Product.findOne({_id: req.params.id});
+    if (product) {
+      let upload = multer({storage: storage}).array("imgCollection", 20);
+      upload(req, res, async function (err) {
+        const code = req.body.code ? req.body.code : product.code;
+        const name = req.body.name ? req.body.name : product.name;
+        const detail = req.body.detail ? req.body.detail : product.detail;
+        const cost = req.body.cost ? req.body.cost : product.cost;
+        const price = req.body.price ? req.body.price : product.price;
+        const quantity = req.body.quantity
+          ? req.body.quantity
+          : product.quantity;
+        const category = req.body.category
+          ? req.body.category
+          : product.category;
+
+        const reqFiles = [];
+        if (!req.files) {
+          res.status(500).send({
+            message: "มีบางอย่างผิดพลาด",
+            data: "No Request Files",
+            status: false,
+          });
+        } else {
+          const url = req.protocol + "://" + req.get("host");
+          for (var i = 0; i < req.files.length; i++) {
+            await uploadFileCreate(req.files, res, {i, reqFiles});
+          }
+          const data = {
+            code: code,
+            picture: reqFiles[0],
+            name: name,
+            detail: detail,
+            price: price,
+            cost: cost,
+            category: category,
+            quantity: quantity,
+          };
+          console.log(data);
+          await Product.findByIdAndUpdate(req.params.id, {
+            code: code,
+            picture: reqFiles[0],
+            name: name,
+            detail: detail,
+            price: price,
+            cost: cost,
+            category: category,
+            quantity: quantity,
+          });
+        }
+      });
+      return res
+        .status(200)
+        .send({message: "อัพเดทสินค้าสำเร็จ", data: product});
+    } else {
+      return res.status(403).send({message: "เกิดข้อผิดพลาด"});
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .send({message: "มีบางอย่างผิดพลาด", error: "server side error"});
+  }
+};
+
 //get product by id
 module.exports.GetById = async (req, res) => {
   try {
