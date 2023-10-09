@@ -11,6 +11,7 @@ const MemberSchema = new mongoose.Schema({
   subdistrict: {type: String, required: true},
   district: {type: String, required: true},
   province: {type: String, required: true},
+  postcode: {type: String, required: true},
   commission_day: {type: Number},
   commission_week: {type: Number},
   bank: {

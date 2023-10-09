@@ -98,6 +98,7 @@ const vali_register = (data) => {
     subdistrict: Joi.string().required().label("กรุณากรอกเขต/ตำบล"),
     district: Joi.string().required().label("กรุณากรอกเขต/อำเภอ"),
     province: Joi.string().required().label("กรุณากรอกจังหวัด"),
+    postcode: Joi.string().required().label("กรุณากรอกรหัสไปรษณีย์"),
   });
   return schema.validate(data);
 };
