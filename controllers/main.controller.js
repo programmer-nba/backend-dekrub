@@ -637,7 +637,6 @@ module.exports.Getverify_bankByid = async (req, res) => {
   }
 };
 
-
 async function uploadImageBank(req, res) {
   try {
     const filePathImg = req.files.bank_image[0].path;
@@ -770,3 +769,15 @@ async function uploadImageIden(req, res) {
     return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
   }
 }
+
+module.exports.condition = async (req, res) => {
+  try {
+    const members = await Members.findOne({
+      _id: req.params.id,
+    });
+    console.log(members);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({message: "Internal Server Error"});
+  }
+};

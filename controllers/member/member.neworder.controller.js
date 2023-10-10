@@ -10,6 +10,9 @@ const {
 const {
   Commission_day,
 } = require("../../models/commission/commission.day.model.js");
+const {
+  Commission_week_regis,
+} = require("../../models/commission/commission.week.regis.model.js");
 const {google} = require("googleapis");
 const multer = require("multer");
 const fs = require("fs");
@@ -213,10 +216,8 @@ module.exports.confirm = async (req, res) => {
       timestamp: dayjs(Date.now()).format(),
     });
     updateStatus.save();
-    const member = await Members.findOne({
-      member_number: updateStatus.member_number,
-    });
-
+    
+    const member = await Members.findOne({member_number: updateStatus.member_number});
     await Members.findByIdAndUpdate(member._id, {
       status: true,
     });
@@ -275,8 +276,8 @@ module.exports.confirm = async (req, res) => {
           data: storeData,
           from_member: updateStatus.member_number,
         };
-        const commission_day = new Commission_day(commissionData);
-        commission_day.save();
+        const commission_week_regis = new Commission_week_regis(commissionData);
+        commission_week_regis.save();
         const member2 = await Members.findOne({
           member_number: TeamMemberData.lv2,
         });
