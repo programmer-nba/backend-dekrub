@@ -6,6 +6,18 @@ const MemberOrderNewSchema = new mongoose.Schema({
   member_number: {type: String, required: true},
   name: {type: String, required: true},
   amount: {type: Number, required: true},
+  product_detail: {
+    type: [
+      {
+        product_id: {type: String, required: true},
+        product_name: {type: String, required: true},
+        product_detail: {type: String, required: true},
+        quantity: {type: Number, required: true},
+        price: {type: Number, required: true},
+        totalprice: {type: Number, required: true},
+      },
+    ],
+  },
   slip_img: [
     {
       type: String,

@@ -3,6 +3,7 @@ const {
   validate,
 } = require("../../models/member.model/member.neworder.model.js");
 const {Members} = require("../../models/member.model/member.model.js");
+const {Product} = require("../../models/product.model/product.model");
 const {
   Percent_Commission,
 } = require("../../models/commission/percent.commission.model.js");
@@ -67,11 +68,31 @@ module.exports.order = async (req, res) => {
         const receiptnumber = `PDK${dayjs(Date.now()).format(
           "YYYYMMDD"
         )}${countValue.toString().padStart(4, "0")}`;
+        const product = await Product.findOne({
+          _id: req.body.product_id,
+        });
+        const order = [];
+        if (product) {
+          const price = product.price * 1;
+          order.push({
+            product_id: product._id,
+            product_name: product.name,
+            product_detail: product.detail,
+            price: product.price,
+            quantity: 1,
+            totalprice: price,
+          });
+        }
+        const new_quantity = product.quantity - 1;
+        await Product.findByIdAndUpdate(product._id, {
+          quantity: new_quantity,
+        });
         const data = {
           receiptnumber: receiptnumber,
           member_number: req.body.member_number,
           name: req.body.name,
-          amount: req.body.amount,
+          amount: product.price,
+          product_detail: order,
           slip_img: reqFiles[0],
           status: [
             {
