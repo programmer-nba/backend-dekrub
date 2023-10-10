@@ -230,7 +230,7 @@ module.exports.confirm = async (req, res) => {
     const remainding_commission_level1 = commission_level1 - vat_level1;
 
     const commission_level2 = percent.level_one;
-    const vat_level2 = (commission_level1 * 3) / 100;
+    const vat_level2 = (commission_level2 * 3) / 100;
     const remainding_commission_level2 = commission_level2 - vat_level2;
 
     for (const TeamMemberData of upline) {

@@ -9,7 +9,7 @@ router.post('/login', main.login);
 router.post('/logout',auth, main.logout);
 router.get('/me',auth, main.me);
 router.put('/edit', auth, main.edit);
-router.post('/condition/:id', main.condition);
+router.post('/condition/:id', auth, main.condition);
 
 router.put('/verify_bank', auth, main.verify_bank);
 router.put('/verify_iden', auth, main.verify_iden);

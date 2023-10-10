@@ -1,5 +1,6 @@
 const {Admins} = require("../models/admin.model");
 const {Members} = require("../models/member.model/member.model");
+const {Condition} = require("../models/condition.model");
 const {LoginHistory} = require("../models/login.history.model");
 const {TokenList} = require("../models/token.list.model");
 const token_decode = require("../lib/token_decode");
@@ -775,7 +776,24 @@ module.exports.condition = async (req, res) => {
     const members = await Members.findOne({
       _id: req.params.id,
     });
-    console.log(members);
+    const data = {
+      member_number: members.member_number,
+      name: members.name,
+      tel: members.tel,
+      username: members.username,
+      status: 'ยอมรับเงื่อนไข',
+      timestamp: dayjs(Date.now()).format(),
+    }
+    const conditions = new Condition(data);
+    conditions.save()
+    if (conditions) {
+      return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
+    } else {
+      return res.status(403).send({
+        status: false,
+        message: "ไม่สามารถบันทึกได้",
+      });
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).send({message: "Internal Server Error"});
