@@ -89,7 +89,6 @@ exports.getById = async(req,res)=>{
     }
 }
 
-
 //ดึงข้อมูลโดย _id
 exports.getMemberRef = async(req,res)=>{
     try{
