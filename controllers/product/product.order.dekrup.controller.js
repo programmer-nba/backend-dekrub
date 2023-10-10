@@ -98,7 +98,7 @@ module.exports.order = async (req, res) => {
     };
     const orderDekrup = await OrderProductModel.create(data);
     if (orderDekrup) {
-      return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
+      return res.status(200).send({status: true, message: "บันทึกสำเร็จ", _id: orderDekrup._id});
     } else {
       return res.status(403).send({
         status: false,
