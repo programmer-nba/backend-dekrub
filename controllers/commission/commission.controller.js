@@ -26,6 +26,21 @@ module.exports.GetAllDay = async (req, res) => {
   }
 };
 
+exports.deleteDay = async(req, res)=>{
+  try{
+      const id = req.params.id;
+      const commission_day = await Commission_day.findByIdAndDelete(id);
+      if(commission_day){
+          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
+      }else{
+          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
+      }
+  }catch(err){
+      console.log(err);
+      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+  }
+}
+
 //get all commission week
 module.exports.GetAllWeek = async (req, res) => {
   try {
@@ -43,6 +58,21 @@ module.exports.GetAllWeek = async (req, res) => {
   }
 };
 
+exports.deleteWeek = async(req, res)=>{
+  try{
+      const id = req.params.id;
+      const commission_week = await Commission_week.findByIdAndDelete(id);
+      if(commission_week){
+          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
+      }else{
+          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
+      }
+  }catch(err){
+      console.log(err);
+      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+  }
+}
+
 //get all commission day
 module.exports.GetAllWeekRegister = async (req, res) => {
   try {
@@ -59,3 +89,18 @@ module.exports.GetAllWeekRegister = async (req, res) => {
     });
   }
 };
+
+exports.deleteWeekRegister = async(req, res)=>{
+  try{
+      const id = req.params.id;
+      const commission_week_register = await Commission_week_regis.findByIdAndDelete(id);
+      if(commission_week_register){
+          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
+      }else{
+          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
+      }
+  }catch(err){
+      console.log(err);
+      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+  }
+}
