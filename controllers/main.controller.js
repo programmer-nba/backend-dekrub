@@ -817,3 +817,18 @@ module.exports.Getcondition = async (req, res) => {
     });
   }
 };
+
+exports.Conditiondelete = async(req, res)=>{
+  try{
+      const id = req.params.id;
+      const condition = await Condition.findByIdAndDelete(id);
+      if(condition){
+          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
+      }else{
+          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
+      }
+  }catch(err){
+      console.log(err);
+      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+  }
+}

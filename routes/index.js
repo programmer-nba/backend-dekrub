@@ -11,6 +11,7 @@ router.get('/me',auth, main.me);
 router.put('/edit', auth, main.edit);
 router.post('/condition/:id', auth, main.condition);
 router.get('/condition/', authAdmin, main.Getcondition);
+router.delete('/condition/delete/:id', authAdmin, main.Conditiondelete);
 
 router.put('/verify_bank', auth, main.verify_bank);
 router.put('/verify_iden', auth, main.verify_iden);
