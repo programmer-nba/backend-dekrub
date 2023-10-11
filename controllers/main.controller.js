@@ -184,6 +184,14 @@ exports.register = async (req, res) => {
   }
 };
 
+exports.checkPassword = async (req, res) => {
+  const {username, password} = req.body;
+  // const admin = await Admins.findOne({username});
+  const member = await Members.findOne({username});
+  const validPasswordAdmin = await bcrypt.hash(password, member.password);
+  console.log(validPasswordAdmin)
+};
+
 exports.login = async (req, res) => {
   try {
     const {username, password} = req.body;

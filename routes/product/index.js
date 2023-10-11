@@ -8,9 +8,9 @@ const authAdmin = require("../../lib/auth.admin");
 router.post("/create", authAdmin, product.create);
 router.get("/list", authAdmin, product.GetAll);
 router.put("/update/:id", authAdmin, product.Update);
-router.get("/member/list", auth, product.GetAll);
+router.get("/member/list", product.GetAll);
 router.get("/:id", authAdmin, product.GetById);
-router.get("/member/:id", auth, product.GetById);
+router.get("/member/:id", product.GetById);
 router.delete("/delete/:id", authAdmin, product.delete);
 
 //order
