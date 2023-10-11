@@ -799,3 +799,21 @@ module.exports.condition = async (req, res) => {
     return res.status(500).send({message: "Internal Server Error"});
   }
 };
+
+module.exports.Getcondition = async (req, res) => {
+  try {
+    const condition = await Condition.find();
+    return res.status(200).send({
+      status: true,
+      message: "ดึงข้อมูลสำเร็จ",
+      data: condition,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({
+      status: false,
+      message: "มีบางอย่างผิดพลาด",
+      err: "server side error",
+    });
+  }
+};
