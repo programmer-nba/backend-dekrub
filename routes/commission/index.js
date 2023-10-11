@@ -5,15 +5,15 @@ const authAdmin = require('../../lib/auth.admin');
 
 //Commission Day Register
 router.get("/day", commission.GetAllDay);
-router.delete("/day/:id", commission.deleteDay);
+router.delete("/day/:id",authAdmin, commission.deleteDay);
 
 //Commission Week
 router.get("/week", commission.GetAllWeek);
-router.delete("/week/:id", commission.deleteWeek);
+router.delete("/week/:id",authAdmin, commission.deleteWeek);
 
 //Commission Week Register
 router.get("/register/week", commission.GetAllWeekRegister);
-router.delete("/register/week/:id", commission.deleteWeekRegister);
+router.delete("/register/week/:id",authAdmin, commission.deleteWeekRegister);
 
 
 
