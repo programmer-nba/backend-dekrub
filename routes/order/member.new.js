@@ -5,7 +5,7 @@ const authAdmin = require("../../lib/auth.admin");
 
 router.get("/new/list", authAdmin, OrderNewMember.GetAll);
 router.get("/new/list/:id", authAdmin, OrderNewMember.GetById);
-router.get("/new/delete/:id", authAdmin, OrderNewMember.DeleteById);
+router.delete("/new/delete/:id", authAdmin, OrderNewMember.DeleteById);
 
 router.post("/order", auth, OrderNewMember.order);
 
