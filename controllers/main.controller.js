@@ -840,3 +840,33 @@ exports.Conditiondelete = async(req, res)=>{
       return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
   }
 }
+
+exports.deletebank = async(req, res)=>{
+  try{
+      const id = req.params.id;
+      const bank = await ImageBank.findByIdAndDelete(id);
+      if(bank){
+          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
+      }else{
+          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
+      }
+  }catch(err){
+      console.log(err);
+      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+  }
+}
+
+exports.deleteiden = async(req, res)=>{
+  try{
+      const id = req.params.id;
+      const iden = await ImageIden.findByIdAndDelete(id);
+      if(iden){
+          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
+      }else{
+          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
+      }
+  }catch(err){
+      console.log(err);
+      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+  }
+}

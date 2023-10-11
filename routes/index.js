@@ -18,8 +18,10 @@ router.put('/verify_bank', auth, main.verify_bank);
 router.put('/verify_iden', auth, main.verify_iden);
 
 router.get('/verify_iden', authAdmin, main.Getverify_iden);
+router.delete('/verify_iden/:id', authAdmin, main.deleteiden);
 router.get('/verify_iden/:id', authAdmin, main.Getverify_idenByid);
 router.get('/verify_bank', authAdmin, main.Getverify_bank);
+router.delete('/verify_bank/:id', authAdmin, main.deletebank);
 router.get('/verify_bank/:id', authAdmin, main.Getverify_bankByid);
 router.put('/verify_bank/confirm/:id', authAdmin, main.confirmBank);
 router.put('/verify_iden/confirm/:id', authAdmin, main.confirmIden);
