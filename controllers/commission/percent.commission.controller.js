@@ -10,6 +10,7 @@ module.exports.create = async (req, res) => {
       code: req.body.code,
       level_one: req.body.level_one,
       level_two: req.body.level_two,
+      level_three: req.body.level_three,
       timestamp: dayjs(Date.now()).format(""),
     };
     const percent_commission = await Percent_Commission.create(data);
@@ -94,3 +95,19 @@ module.exports.Update = async (req, res) => {
     return res.status(403).send({message: "เกิดข้อผิดพลาด"});
   }
 };
+
+exports.delete = async(req, res)=>{
+  try{
+      const id = req.params.id;
+      const percent = await Percent_Commission.findByIdAndDelete(id);
+      if(percent){
+          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
+      }else{
+          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
+      }
+  }catch(err){
+      console.log(err);
+      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+  }
+}
+
