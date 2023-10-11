@@ -206,6 +206,24 @@ module.exports.GetById = async (req, res) => {
   }
 };
 
+//delete
+module.exports.DeleteById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const order = await NewOrderMembers.findByIdAndDelete(id);
+    if (order) {
+      return res.status(200).send({status: true, message: "ลบสำเร็จ"});
+    } else {
+      return res
+        .status(400)
+        .send({status: false, message: "ลบไม่สำเร็จ กรุณาลองอีกครั้ง"});
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({message: "Internal Server Error"});
+  }
+};
+
 //confirm order
 module.exports.confirm = async (req, res) => {
   const updateStatus = await NewOrderMembers.findOne({_id: req.params.id});

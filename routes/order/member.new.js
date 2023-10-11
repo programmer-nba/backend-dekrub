@@ -3,8 +3,9 @@ const OrderNewMember = require("../../controllers/member/member.neworder.control
 const auth = require("../../lib/auth");
 const authAdmin = require("../../lib/auth.admin");
 
-router.get("/new/list", auth, OrderNewMember.GetAll);
-router.get("/new/list/:id", auth, OrderNewMember.GetById);
+router.get("/new/list", authAdmin, OrderNewMember.GetAll);
+router.get("/new/list/:id", authAdmin, OrderNewMember.GetById);
+router.get("/new/delete/:id", authAdmin, OrderNewMember.DeleteById);
 
 router.post("/order", auth, OrderNewMember.order);
 
