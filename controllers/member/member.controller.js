@@ -30,6 +30,7 @@ exports.editUser = async(req, res)=>{
         const id = req.params.id;
         const vali = (data)=>{
             const schema = Joi.object({
+                username: Joi.string(),
                 name : Joi.string(),
                 password : Joi.string(),
                 position : Joi.string(),
