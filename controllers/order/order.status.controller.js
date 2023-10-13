@@ -9,6 +9,7 @@ const {
   Percent_Commission,
 } = require("../../models/commission/percent.commission.model.js");
 const {Members} = require("../../models/member.model/member.model.js");
+const {Product} = require("../../models/product.model/product.model");
 
 //confirm order
 module.exports.confirm = async (req, res) => {
@@ -104,6 +105,16 @@ module.exports.cancel = async (req, res) => {
       timestamp: dayjs(Date.now()).format(),
     });
     updateStatus.save();
+    for (let item of updateStatus.product_detail) {
+      const product = await Product.findOne({
+        _id: item.product_id,
+      });
+      console.log(product);
+      const new_quantity = product.quantity + item.quantity;
+      await Product.findByIdAndUpdate(product._id, {
+        quantity: new_quantity,
+      });
+    }
   } else {
     return res.status(403).send({message: "เกิดข้อผิดพลาด"});
   }
