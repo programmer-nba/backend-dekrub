@@ -95,6 +95,7 @@ module.exports.order = async (req, res) => {
         },
       ],
       totalprice: totalprice,
+      timestamp: dayjs(Date.now()).format(""),
     };
     const orderDekrup = await OrderProductModel.create(data);
     if (orderDekrup) {

@@ -28,7 +28,7 @@ const orderproduct = new mongoose.Schema({
         type: String,
     }],
     totalprice: {type: Number, required: true},
-    timestamp: {type: Date, default: Date.now() }
+    timestamp: {type: String}
 })
 
 const OrderProductModel = new mongoose.model("orderproduct", orderproduct)
