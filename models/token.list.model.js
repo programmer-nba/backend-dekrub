@@ -4,7 +4,7 @@ const Joi = require('joi');
 const TokenListSchema = new mongoose.Schema({
     id : {type:String, required: true},
     token : {type: String, required: true},
-    timestamp: {type: Date, required: true}
+    timestamp: {type: String, required: true}
 }, {timestamps: true})
 
 const TokenList = mongoose.model('token_list', TokenListSchema);

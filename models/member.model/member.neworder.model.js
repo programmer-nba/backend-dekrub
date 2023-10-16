@@ -42,7 +42,7 @@ const validate = (data) => {
     name: Joi.string().required().label("ไม่พบชื่อ"),
     amount: Joi.number().required().label("ไม่พบยอดราคา"),
     slip_img: Joi.string().default("-"),
-    timestamp: Joi.date().required().label("ไม่มีวันที่สมัคร"),
+    timestamp: Joi.string().required().label("ไม่มีวันที่สมัคร"),
   });
   return schema.validate(data);
 };

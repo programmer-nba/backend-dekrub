@@ -7,7 +7,7 @@ const ConditionSchema = new mongoose.Schema({
   tel: {type: String, required: true}, //เบอร์โทรศัพท์
   username: {type: String, required: true}, //username
   status: {type: String, required: true},
-  timestamp: {type: Date, required: false, default: Date.now()}, //เริ่ม
+  timestamp: {type: String, required: true}, //เริ่ม
 });
 
 const Condition = mongoose.model("condition", ConditionSchema);

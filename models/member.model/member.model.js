@@ -32,7 +32,7 @@ const MemberSchema = new mongoose.Schema({
     lv2: {type: String, required: false, default: "-"},
   },
   position: {type: String, required: true},
-  timestamp: {type: Date, required: true},
+  timestamp: {type: String, required: true},
   status: {type: Boolean, required: false, default: false},
 });
 
@@ -70,7 +70,7 @@ const validate = (data) => {
       lv2: Joi.string().default("-"),
     },
     position: Joi.string().required().label("ไม่พบตำแหน่ง"),
-    timestamp: Joi.date().required().label('ไม่มีวันที่สมัคร'),
+    timestamp: Joi.string().required().label('ไม่มีวันที่สมัคร'),
     status: Joi.boolean().default(true),
   });
   return schema.validate(data);
