@@ -17,6 +17,7 @@ const {google} = require("googleapis");
 const multer = require("multer");
 const fs = require("fs");
 const dayjs = require("dayjs");
+const line = require("../../lib/line.notify.register.js")
 
 const CLIENT_ID = process.env.GOOGLE_DRIVE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
@@ -107,6 +108,16 @@ module.exports.order = async (req, res) => {
         };
         const orderNewMember = await NewOrderMembers.create(data);
         if (orderNewMember) {
+          const message = `
+เลขที่ทำรายการ : ${orderNewMember.receiptnumber}
+จาก : ${orderNewMember.member_number}
+ชื่อ : ${orderNewMember.name}
+จำนวน : ${orderNewMember.amount} บาท
+
+ตรวจสอบได้ที่ : http://shop.dekrubshop.com/
+
+*รบกวนตรวจสอบด้วยนะคะ/ครับ*`;
+          await line.linenotify(message);
           return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
         } else {
           return res.status(403).send({
@@ -234,8 +245,10 @@ module.exports.confirm = async (req, res) => {
       timestamp: dayjs(Date.now()).format(),
     });
     updateStatus.save();
-    
-    const member = await Members.findOne({member_number: updateStatus.member_number});
+
+    const member = await Members.findOne({
+      member_number: updateStatus.member_number,
+    });
     await Members.findByIdAndUpdate(member._id, {
       status: true,
     });

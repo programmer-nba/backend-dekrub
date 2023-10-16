@@ -14,6 +14,7 @@ const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const dayjs = require("dayjs");
 const {request} = require("http");
+const line = require("../../lib/line.notify.order.js")
 
 const CLIENT_ID = process.env.GOOGLE_DRIVE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
@@ -99,7 +100,21 @@ module.exports.order = async (req, res) => {
     };
     const orderDekrup = await OrderProductModel.create(data);
     if (orderDekrup) {
-      return res.status(200).send({status: true, message: "บันทึกสำเร็จ", _id: orderDekrup._id});
+      const message = `
+เลขที่ทำรายการ : ${orderDekrup.receiptnumber}
+จาก : ${orderDekrup.member_number}
+ชื่อ : ${orderDekrup.customer_name}
+เบอร์โทรศัพท์ : ${orderDekrup.customer_tel}
+ID_line : ${orderDekrup.customer_line}
+จำนวน : ${orderDekrup.totalprice} บาท
+
+ตรวจสอบได้ที่ : http://shop.dekrubshop.com/
+
+*รบกวนตรวจสอบด้วยนะคะ/ครับ*`;
+      await line.linenotify(message);
+      return res
+        .status(200)
+        .send({status: true, message: "บันทึกสำเร็จ", data: orderDekrup});
     } else {
       return res.status(403).send({
         status: false,

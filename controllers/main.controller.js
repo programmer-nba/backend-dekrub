@@ -7,6 +7,7 @@ const token_decode = require("../lib/token_decode");
 const {Commission_day} = require("../models/commission/commission.day.model");
 const {ImageBank} = require("../models/member.model/image_bank.model");
 const {ImageIden} = require("../models/member.model/image_iden.model");
+const line = require("../lib/line.notify.register");
 
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
@@ -155,6 +156,7 @@ exports.register = async (req, res) => {
     }
     //เพิ่มข้อมูลลงฐานข้อมูล
     const member = await Members.create(data);
+    console.log(member);
     if (member) {
       const payload = {
         _id: member._id,
@@ -189,7 +191,7 @@ exports.checkPassword = async (req, res) => {
   // const admin = await Admins.findOne({username});
   const member = await Members.findOne({username});
   const validPasswordAdmin = await bcrypt.hash(password, member.password);
-  console.log(validPasswordAdmin)
+  console.log(validPasswordAdmin);
 };
 
 exports.login = async (req, res) => {
@@ -789,11 +791,11 @@ module.exports.condition = async (req, res) => {
       name: members.name,
       tel: members.tel,
       username: members.username,
-      status: 'ยอมรับเงื่อนไข',
+      status: "ยอมรับเงื่อนไข",
       timestamp: dayjs(Date.now()).format(),
-    }
+    };
     const conditions = new Condition(data);
-    conditions.save()
+    conditions.save();
     if (conditions) {
       return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
     } else {
@@ -826,47 +828,53 @@ module.exports.Getcondition = async (req, res) => {
   }
 };
 
-exports.Conditiondelete = async(req, res)=>{
-  try{
-      const id = req.params.id;
-      const condition = await Condition.findByIdAndDelete(id);
-      if(condition){
-          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
-      }else{
-          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
-      }
-  }catch(err){
-      console.log(err);
-      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+exports.Conditiondelete = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const condition = await Condition.findByIdAndDelete(id);
+    if (condition) {
+      return res.status(200).send({status: true, message: "ลบข้อมูลสำเร็จ"});
+    } else {
+      return res
+        .status(400)
+        .send({status: false, message: "ลบข้อมูลไม่สำเร็จ"});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
   }
-}
+};
 
-exports.deletebank = async(req, res)=>{
-  try{
-      const id = req.params.id;
-      const bank = await ImageBank.findByIdAndDelete(id);
-      if(bank){
-          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
-      }else{
-          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
-      }
-  }catch(err){
-      console.log(err);
-      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+exports.deletebank = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const bank = await ImageBank.findByIdAndDelete(id);
+    if (bank) {
+      return res.status(200).send({status: true, message: "ลบข้อมูลสำเร็จ"});
+    } else {
+      return res
+        .status(400)
+        .send({status: false, message: "ลบข้อมูลไม่สำเร็จ"});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
   }
-}
+};
 
-exports.deleteiden = async(req, res)=>{
-  try{
-      const id = req.params.id;
-      const iden = await ImageIden.findByIdAndDelete(id);
-      if(iden){
-          return res.status(200).send({status: true, message: 'ลบข้อมูลสำเร็จ'})
-      }else{
-          return res.status(400).send({status: false, message: 'ลบข้อมูลไม่สำเร็จ'})
-      }
-  }catch(err){
-      console.log(err);
-      return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+exports.deleteiden = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const iden = await ImageIden.findByIdAndDelete(id);
+    if (iden) {
+      return res.status(200).send({status: true, message: "ลบข้อมูลสำเร็จ"});
+    } else {
+      return res
+        .status(400)
+        .send({status: false, message: "ลบข้อมูลไม่สำเร็จ"});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
   }
-}
+};
