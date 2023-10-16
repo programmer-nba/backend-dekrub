@@ -10,12 +10,12 @@ router.delete("/day/:id",authAdmin, commission.deleteDay);
 
 //Commission Week
 router.get("/week", commission.GetAllWeek);
-router.put("/day/:id", authAdmin, commission.updateWeek);
+router.put("/week/:id", authAdmin, commission.updateWeek);
 router.delete("/week/:id",authAdmin, commission.deleteWeek);
 
 //Commission Week Register
 router.get("/register/week", commission.GetAllWeekRegister);
-router.put("/day/:id", authAdmin, commission.updateWeekRegister);
+router.put("/register/week/:id", authAdmin, commission.updateWeekRegister);
 router.delete("/register/week/:id",authAdmin, commission.deleteWeekRegister);
 
 
