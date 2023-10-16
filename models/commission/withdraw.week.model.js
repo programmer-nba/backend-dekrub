@@ -14,7 +14,7 @@ const withdraw_week = new mongoose.Schema(
         },
       ],
     },
-    timestamp: {type: Date, default: Date.now()},
+    timestamp: {type: String},
   },
   {timestamps: true}
 );

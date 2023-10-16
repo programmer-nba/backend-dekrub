@@ -9,7 +9,7 @@ const commission_day = new mongoose.Schema({
         remainding_commission: {type: Number},
     }] },
     from_member: {type: String},
-    timestamp: {type: Date, default: Date.now()},
+    timestamp: {type: String},
 }, {timestamps: true})
 
 const Commission_day = new mongoose.model("commission_day", commission_day)

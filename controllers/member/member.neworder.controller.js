@@ -242,7 +242,7 @@ module.exports.confirm = async (req, res) => {
   if (updateStatus) {
     updateStatus.status.push({
       status: "ยืนยันออเดอร์",
-      timestamp: dayjs(Date.now()).format(),
+      timestamp: dayjs(Date.now()).format(""),
     });
     updateStatus.save();
 

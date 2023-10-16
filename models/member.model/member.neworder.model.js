@@ -31,7 +31,7 @@ const MemberOrderNewSchema = new mongoose.Schema({
       },
     ],
   },
-  timestamp: {type: Date, required: true},
+  timestamp: {type: String},
 });
 
 const NewOrderMembers = mongoose.model("member_neworder", MemberOrderNewSchema);

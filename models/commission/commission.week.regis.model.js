@@ -9,7 +9,7 @@ const commission_week_regis = new mongoose.Schema({
         remainding_commission: {type: Number},
     }] },
     from_member: {type: String},
-    timestamp: {type: Date, default: Date.now()},
+    timestamp: {type: String},
 }, {timestamps: true})
 
 const Commission_week_regis = new mongoose.model("commission_week_regis", commission_week_regis)
