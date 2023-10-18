@@ -3,8 +3,8 @@ const FunctionMore = require('../../controllers/more.controller/function.more.co
 const authAdmin = require('../../lib/auth.admin');
 
 router.post("/create", authAdmin, FunctionMore.create);
-router.get("/", authAdmin, FunctionMore.getAll);
-router.get('/:id', authAdmin, FunctionMore.getById);
+router.get("/", FunctionMore.getAll);
+router.get('/:id', FunctionMore.getById);
 router.put('/:id',authAdmin, FunctionMore.update);
 
 module.exports = router;
