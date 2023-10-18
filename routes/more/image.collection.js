@@ -31,7 +31,6 @@ router.post("/", async (req, res) => {
     let upload = multer({storage: storage}).array("imgCollection", 20);
     upload(req, res, async function (err) {
       const reqFiles = [];
-      console.log(req.files);
       if (!req.files) {
         res.status(500).send({message: "มีบางอย่างผิดพลาด", status: false});
       } else {
