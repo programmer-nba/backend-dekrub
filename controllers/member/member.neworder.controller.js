@@ -279,6 +279,7 @@ module.exports.confirm = async (req, res) => {
         const commissionData = {
           data: storeData,
           from_member: updateStatus.member_number,
+          timestamp: dayjs(Date.now()).format(),
         };
         const commission_day = new Commission_day(commissionData);
         commission_day.save();
@@ -306,6 +307,7 @@ module.exports.confirm = async (req, res) => {
         const commissionData = {
           data: storeData,
           from_member: updateStatus.member_number,
+          timestamp: dayjs(Date.now()).format(),
         };
         const commission_week_regis = new Commission_week_regis(commissionData);
         commission_week_regis.save();
