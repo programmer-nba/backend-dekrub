@@ -1,6 +1,7 @@
 const router = require('express').Router();
-const Member = require('../../controllers/member/member.controller')
-const authAdmin = require('../../lib/auth.admin')
+const Member = require('../../controllers/member/member.controller');
+const auth = require('../../lib/auth');
+const authAdmin = require('../../lib/auth.admin');
 
 router.post('/',authAdmin, Member.addUser);
 router.get('/',authAdmin, Member.getAll);
