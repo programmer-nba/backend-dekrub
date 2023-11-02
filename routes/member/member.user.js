@@ -4,6 +4,7 @@ const authAdmin = require('../../lib/auth.admin')
 
 router.post('/',authAdmin, Member.addUser);
 router.get('/',authAdmin, Member.getAll);
+router.get('/list', auth, Member.getAll);
 router.get('/:id', authAdmin, Member.getById);
 router.put('/:id', authAdmin, Member.editUser);
 router.delete('/delete/:id', authAdmin, Member.delUser);
