@@ -6,7 +6,8 @@ const authAdmin = require("../../lib/auth.admin");
 
 //create Product
 router.post("/create", authAdmin, product.create);
-router.get("/list", authAdmin, product.GetAll);
+router.get("/list", auth, product.GetAll);
+router.get("/admin/list", authAdmin, product.GetAll);
 router.put("/update/:id", authAdmin, product.Update);
 router.get("/member/list", product.GetAll);
 router.get("/:id", authAdmin, product.GetById);

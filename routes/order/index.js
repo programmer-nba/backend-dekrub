@@ -6,7 +6,9 @@ const auth = require("../../lib/auth");
 const authAdmin = require("../../lib/auth.admin");
 
 router.get("/list", auth, OrderProduct.GetAll);
+router.get("/admin/list", authAdmin, OrderProduct.GetAll);
 router.get("/list/:id", auth, OrderProduct.GetById);
+router.get("/admin/list/:id", authAdmin, OrderProduct.GetById);
 
 router.put("/confirm/:id", authAdmin, OrderStatus.confirm);
 router.put("/cancel/:id", authAdmin, OrderStatus.cancel);
