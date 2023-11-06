@@ -7,5 +7,6 @@ router.get("/", FunctionMore.getAll);
 router.get('/:id', FunctionMore.getById);
 // router.get('/:func_name',authAdmin, FunctionMore.getByFunctionName);
 router.put('/:id',authAdmin, FunctionMore.update);
+router.delete('/:id', FunctionMore.delete)
 
 module.exports = router;

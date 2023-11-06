@@ -15,12 +15,10 @@ exports.create = async (req, res) => {
       func_name: req.body.func_name,
     });
     if (check_name) {
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: "ชื่อฟังก์ชั่นนี้มีในระบบเรียบร้อยแล้ว",
-        });
+      return res.status(400).send({
+        status: false,
+        message: "ชื่อฟังก์ชั่นนี้มีในระบบเรียบร้อยแล้ว",
+      });
     }
     const function_more = await FunctionMore.create(req.body);
 
@@ -72,8 +70,10 @@ exports.getById = async (req, res) => {
 exports.getByFunctionName = async (req, res) => {
   try {
     const id = req.params.id;
-    const function_more = await FunctionMore.findOne({func_name: req.params.func_name});
-    
+    const function_more = await FunctionMore.findOne({
+      func_name: req.params.func_name,
+    });
+
     if (function_more) {
       return res.status(200).send({status: true, data: function_more});
     } else {
@@ -92,11 +92,28 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const function_more = await FunctionMore.findByIdAndUpdate(id, req.body);
     if (function_more) {
-      return res.status(200).send({status: true, data: function_more});
+      return res.status(200).send({status: true, message: "แก้ไขข้อมูลสำเร็จ", data: function_more});
     } else {
       return res
         .status(400)
         .send({status: false, message: "แก้ไขข้อมูลไม่สำเร็จ"});
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
+exports.delete = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const function_more = await FunctionMore.findByIdAndDelete(id);
+    if (function_more) {
+      return res.status(200).send({status: true, message: "ลบข้อมูลฟังก์ชั่นสำเร็จ"});
+    } else {
+      return res
+        .status(400)
+        .send({status: false, message: "ลบข้อมูลฟังก์ชั่นไม่สำเร็จ"});
     }
   } catch (err) {
     console.log(err);
