@@ -118,7 +118,7 @@ module.exports.order = async (req, res) => {
 
 *รบกวนตรวจสอบด้วยนะคะ/ครับ*`;
           await line.linenotify(message);
-          return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
+          return res.status(200).send({status: true, message: "บันทึกสำเร็จ", data: orderNewMember});
         } else {
           return res.status(403).send({
             status: false,
