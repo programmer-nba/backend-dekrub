@@ -408,7 +408,7 @@ exports.forgotPassword = async (req, res) => {
     const vali = (data) => {
       const schema = Joi.object({
         phone: Joi.string().required().label("ไม่พบเบอร์โทรศัพท์"),
-        member_number: Joi.string().required().label("ไม่พบรหัสสมาชิก"),
+        username: Joi.string().required().label("ไม่พบไอดีสมาชิก"),
         password: Joi.string().required().label("ไม่พบรหัสผ่านใหม่"),
       });
       return schema.validate(data);
@@ -419,7 +419,7 @@ exports.forgotPassword = async (req, res) => {
         .status(400)
         .send({status: false, message: error.details[0].message});
     }
-    const member = await Members.findOne({member_number: req.body.member_number});
+    const member = await Members.findOne({username: req.body.username});
     console.log(member);
     if (!member) {
       return res
