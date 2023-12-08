@@ -31,5 +31,4 @@ router.post('/set_password', authPassword, main.setPassword);
 router.post('/reset_password', main.resetPassword);
 router.post('/forgot_password', main.forgotPassword); //ลืมรหัสผ่าน
 
-
 module.exports = router;
