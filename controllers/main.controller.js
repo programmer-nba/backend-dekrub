@@ -404,6 +404,7 @@ exports.resetPassword = async (req, res) => {
 //ลืมรหัสผ่าน
 exports.forgotPassword = async (req, res) => {
   try {
+    console.log(req.body)
     const vali = (data) => {
       const schema = Joi.object({
         phone: Joi.string().required().label("ไม่พบเบอร์โทรศัพท์"),
@@ -418,13 +419,14 @@ exports.forgotPassword = async (req, res) => {
         .status(400)
         .send({status: false, message: error.details[0].message});
     }
-    const member = await Members.findOne({tel: req.body.phone});
+    const member = await Members.findOne({member_number: req.body.member_number});
+    console.log(member);
     if (!member) {
       return res
         .status(403)
         .send({status: false, message: "ไม่พบข้อมูลลูกค้า"});
     } else {
-      if (req.body.member_number !== member.member_number) {
+      if (req.body.phone !== member.tel) {
         return res
           .status(403)
           .send({
@@ -458,13 +460,15 @@ exports.forgotPassword = async (req, res) => {
 
 const checkMembers = async (req, res) => {
   try {
-    const {username, password} = req.body;
-    if (!username || !password) {
-      return res.status(400).send({message: error.details[0].message});
-    }
-    const member = await Members.findOne({username});
+    // const {username, password} = req.body;
+    // if (!username || !password) {
+    //   return res.status(400).send({message: error.details[0].message});
+    // }
+    const member = await Members.findOne({username: req.body.username});
+    console.log(member);
     const validPasswordAdmin =
-      member && (await bcrypt.compare(password, member.password));
+      member && (await bcrypt.compare(req.body.password, member.password));
+      console.log(validPasswordAdmin)
     if (!validPasswordAdmin) {
       return res.status(401).send({
         message: "password is not find",
