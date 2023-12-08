@@ -28,11 +28,11 @@ module.exports.confirm = async (req, res) => {
         .status(403)
         .send({status: false, message: "ไม่พบข้อมูลลูกค้า"});
     } else {
-      // updateStatus.status.push({
-      //   status: "ยืนยันออเดอร์",
-      //   timestamp: dayjs(Date.now()).format(),
-      // });
-      // updateStatus.save();
+      updateStatus.status.push({
+        status: "ยืนยันออเดอร์",
+        timestamp: dayjs(Date.now()).format(),
+      });
+      updateStatus.save();
 
       const upline = [member.upline];
       const commission_level1 = percent.level_two * quantity;
