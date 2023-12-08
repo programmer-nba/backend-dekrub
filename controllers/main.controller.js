@@ -401,6 +401,61 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+//ลืมรหัสผ่าน
+exports.forgotPassword = async (req, res) => {
+  try {
+    const vali = (data) => {
+      const schema = Joi.object({
+        phone: Joi.string().required().label("ไม่พบเบอร์โทรศัพท์"),
+        member_number: Joi.string().required().label("ไม่พบรหัสสมาชิก"),
+        password: Joi.string().required().label("ไม่พบรหัสผ่านใหม่"),
+      });
+      return schema.validate(data);
+    };
+    const {error} = vali(req.body);
+    if (error) {
+      return res
+        .status(400)
+        .send({status: false, message: error.details[0].message});
+    }
+    const member = await Members.findOne({tel: req.body.phone});
+    if (!member) {
+      return res
+        .status(403)
+        .send({status: false, message: "ไม่พบข้อมูลลูกค้า"});
+    } else {
+      if (req.body.member_number !== member.member_number) {
+        return res
+          .status(403)
+          .send({
+            status: false,
+            message: "ข้อมูลไม่ตรงกัน กรุณาตรวจสอบใหม่อีกครั้ง",
+          });
+      } else {
+        const encrytedPassword = await bcrypt.hash(req.body.password, 10);
+        const change_password = await Members.findByIdAndUpdate(member._id, {
+          password: encrytedPassword,
+        });
+        if (change_password) {
+          return res
+            .status(200)
+            .send({
+              status: true,
+              message: "ทำการเปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว",
+            });
+        } else {
+          return res
+            .status(400)
+            .send({status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ"});
+        }
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
 const checkMembers = async (req, res) => {
   try {
     const {username, password} = req.body;

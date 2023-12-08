@@ -27,8 +27,9 @@ router.put('/verify_bank/confirm/:id', authAdmin, main.confirmBank);
 router.put('/verify_iden/confirm/:id', authAdmin, main.confirmIden);
 
 //เปลี่ยนรหัสผ่านใหม่
-router.post('/set_password', authPassword, main.setPassword);
+router.post('/set_password', authPassword, main.setPassword); 
 router.post('/reset_password', main.resetPassword);
+router.post('/forgot_password', main.forgotPassword); //ลืมรหัสผ่าน
 
 
 module.exports = router;

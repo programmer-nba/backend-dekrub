@@ -14,7 +14,7 @@ const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const dayjs = require("dayjs");
 const {request} = require("http");
-const line = require("../../lib/line.notify.order.js")
+const line = require("../../lib/line.notify.order.js");
 
 const CLIENT_ID = process.env.GOOGLE_DRIVE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
