@@ -28,11 +28,11 @@ module.exports.confirm = async (req, res) => {
         .status(403)
         .send({status: false, message: "ไม่พบข้อมูลลูกค้า"});
     } else {
-      updateStatus.status.push({
-        status: "ยืนยันออเดอร์",
-        timestamp: dayjs(Date.now()).format(),
-      });
-      updateStatus.save();
+      // updateStatus.status.push({
+      //   status: "ยืนยันออเดอร์",
+      //   timestamp: dayjs(Date.now()).format(),
+      // });
+      // updateStatus.save();
 
       const upline = [member.upline];
       const commission_level1 = percent.level_two * quantity;
@@ -44,7 +44,6 @@ module.exports.confirm = async (req, res) => {
       const remainding_commission_level3 = commission_level3 - vat_level3;
 
       for (const TeamMemberData of upline) {
-        console.log(TeamMemberData);
         if (TeamMemberData.lv1) {
           const storeData = [];
           const integratedData = {
@@ -66,7 +65,8 @@ module.exports.confirm = async (req, res) => {
           const member2 = await Members.findOne({
             member_number: TeamMemberData.lv1,
           });
-          if (member2) {
+          console.log(member2);
+          if (member) {
             const new_commission_week =
               member2.commission_week + remainding_commission_level1;
             await Members.findByIdAndUpdate(member2._id, {
@@ -75,10 +75,36 @@ module.exports.confirm = async (req, res) => {
           }
         }
       }
-      return res
-        .status(200)
-        .send({message: "ยืนยันการรับออร์เดอร์สำเร็จ", data: updateStatus});
+
+      // const storeData = [];
+      // const integratedData = {
+      //   member_number: updateStatus.member_number,
+      //   commission: commission_level3,
+      //   vat3percent: vat_level3,
+      //   remainding_commission: remainding_commission_level3,
+      // };
+      // if (integratedData) {
+      //   storeData.push(integratedData);
+      // }
+      // const commissionData = {
+      //   data: storeData,
+      //   from_member: updateStatus.member_number,
+      //   timestamp: dayjs(Date.now()).format(),
+      // };
+      // const commission_week = new Commission_week(commissionData);
+      // commission_week.save();
+      // const member2 = await Members.findOne({
+      //   member_number: updateStatus.member_number,
+      // });
+      // const new_commission_week =
+      //   member2.commission_week + remainding_commission_level1;
+      // await Members.findByIdAndUpdate(member2._id, {
+      //   commission_week: new_commission_week,
+      // });
     }
+    return res
+      .status(200)
+      .send({message: "ยืนยันการรับออร์เดอร์สำเร็จ", data: updateStatus});
   } else {
     return res.status(403).send({message: "เกิดข้อผิดพลาด"});
   }

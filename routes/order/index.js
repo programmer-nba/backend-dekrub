@@ -10,7 +10,7 @@ router.get("/admin/list", authAdmin, OrderProduct.GetAll);
 router.get("/list/:id", auth, OrderProduct.GetById);
 router.get("/admin/list/:id", authAdmin, OrderProduct.GetById);
 
-router.put("/confirm/:id", OrderStatus.confirm);
+router.put("/confirm/:id", authAdmin, OrderStatus.confirm);
 router.put("/cancel/:id", authAdmin, OrderStatus.cancel);
 
 module.exports = router;
