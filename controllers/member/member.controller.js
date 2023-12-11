@@ -132,7 +132,7 @@ exports.getByMemberNumber = async (req, res) => {
 //ดึงข้อมูลโดย _id
 exports.getMemberRef = async (req, res) => {
   try {
-    const user = await Members.findOne({member_ref: req.params.member_ref});
+    const user = await Members.findOne({member_number: req.params.id});
     console.log(user);
     if (user) {
       const res_data = {
