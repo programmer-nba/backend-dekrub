@@ -5,7 +5,7 @@ const authAdmin = require("../../lib/auth.admin");
 router.post("/create", authAdmin, FunctionMore.create);
 router.get("/", FunctionMore.getAll);
 router.get("/:id", FunctionMore.getById);
-router.get("/:func_name", authAdmin, FunctionMore.getByFunctionName);
+// router.get("/:name", FunctionMore.getByFunctionName);
 router.put("/:id", authAdmin, FunctionMore.update);
 router.delete("/:id", FunctionMore.delete);
 

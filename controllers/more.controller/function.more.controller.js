@@ -38,6 +38,7 @@ exports.create = async (req, res) => {
 exports.getAll = async (req, res) => {
   try {
     const function_more = await FunctionMore.find();
+    console.log(function_more);
     if (function_more) {
       return res.status(200).send({status: true, data: function_more});
     } else {
@@ -53,8 +54,7 @@ exports.getAll = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const id = req.params.id;
-    const function_more = await FunctionMore.findOne({fucn_name: id});
-    console.log(function_more);
+    const function_more = await FunctionMore.findOne({_id: id});
     if (!function_more)
       return res
         .status(400)
@@ -67,7 +67,11 @@ exports.getById = async (req, res) => {
 };
 
 exports.getByFunctionName = async (req, res) => {
+  const func_name = req.params.name;
+  console.log(func_name);
   try {
+    // console.log(req.params.func_name);
+
     const function_more = await FunctionMore.findOne({
       func_name: req.params.func_name,
     });
