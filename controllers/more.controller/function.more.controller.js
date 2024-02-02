@@ -67,7 +67,6 @@ exports.getById = async (req, res) => {
 
 exports.getByFunctionName = async (req, res) => {
   try {
-    const id = req.params.id;
     const function_more = await FunctionMore.findOne({
       func_name: req.params.func_name,
     });
