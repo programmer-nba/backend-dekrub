@@ -54,13 +54,11 @@ exports.getById = async (req, res) => {
   try {
     const id = req.params.id;
     const function_more = await FunctionMore.findOne({fucn_name: id});
-    if (function_more) {
-      return res.status(200).send({status: true, data: function_more});
-    } else {
+    if (!function_more)
       return res
         .status(400)
         .send({status: false, message: "ดึงข้อมูลไม่สำเร็จ"});
-    }
+    return res.status(200).send({status: true, data: function_more});
   } catch (err) {
     console.log(err);
     return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
@@ -92,7 +90,11 @@ exports.update = async (req, res) => {
     const id = req.params.id;
     const function_more = await FunctionMore.findByIdAndUpdate(id, req.body);
     if (function_more) {
-      return res.status(200).send({status: true, message: "แก้ไขข้อมูลสำเร็จ", data: function_more});
+      return res.status(200).send({
+        status: true,
+        message: "แก้ไขข้อมูลสำเร็จ",
+        data: function_more,
+      });
     } else {
       return res
         .status(400)
@@ -109,7 +111,9 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
     const function_more = await FunctionMore.findByIdAndDelete(id);
     if (function_more) {
-      return res.status(200).send({status: true, message: "ลบข้อมูลฟังก์ชั่นสำเร็จ"});
+      return res
+        .status(200)
+        .send({status: true, message: "ลบข้อมูลฟังก์ชั่นสำเร็จ"});
     } else {
       return res
         .status(400)
