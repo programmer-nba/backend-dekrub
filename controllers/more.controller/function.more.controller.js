@@ -54,6 +54,7 @@ exports.getById = async (req, res) => {
   try {
     const id = req.params.id;
     const function_more = await FunctionMore.findOne({fucn_name: id});
+    console.log(function_more);
     if (!function_more)
       return res
         .status(400)
