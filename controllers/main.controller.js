@@ -464,10 +464,8 @@ const checkMembers = async (req, res) => {
     //   return res.status(400).send({message: error.details[0].message});
     // }
     const member = await Members.findOne({username: req.body.username});
-    console.log(member);
     const validPasswordAdmin =
       member && (await bcrypt.compare(req.body.password, member.password));
-    console.log(validPasswordAdmin);
     if (!validPasswordAdmin) {
       return res.status(401).send({
         message: "password is not find",
@@ -479,6 +477,7 @@ const checkMembers = async (req, res) => {
       auth: member.position,
       name: member.name,
       username: member.username,
+      member_number: member.member_number,
     };
     const token = jwt.sign(payload, `${process.env.JWTPRIVATEKEY}`);
     await new LoginHistory({
@@ -931,6 +930,28 @@ exports.deleteiden = async (req, res) => {
         .status(400)
         .send({status: false, message: "ลบข้อมูลไม่สำเร็จ"});
     }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+  }
+};
+
+exports.referral = async (req, res) => {
+  try {
+    const data = {
+      member_number: req.user.member_number,
+    };
+    const referral_code = jwt.sign(data, `${process.env.JWTPRIVATEKEY}`);
+    if (!referral_code)
+      return res.status(403).send({
+        status: false,
+        message: "สร้างรหัสแนะนำไม่สำเร็จ",
+      });
+    return res.status(200).send({
+      status: true,
+      message: "สร้างรหัสแนะนำสำเร็จ",
+      data: referral_code,
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
