@@ -1,12 +1,12 @@
-const {Admins} = require("../models/admin.model");
-const {Members} = require("../models/member.model/member.model");
-const {Condition} = require("../models/condition.model");
-const {LoginHistory} = require("../models/login.history.model");
-const {TokenList} = require("../models/token.list.model");
+const { Admins } = require("../models/admin.model");
+const { Members } = require("../models/member.model/member.model");
+const { Condition } = require("../models/condition.model");
+const { LoginHistory } = require("../models/login.history.model");
+const { TokenList } = require("../models/token.list.model");
 const token_decode = require("../lib/token_decode");
-const {Commission_day} = require("../models/commission/commission.day.model");
-const {ImageBank} = require("../models/member.model/image_bank.model");
-const {ImageIden} = require("../models/member.model/image_iden.model");
+const { Commission_day } = require("../models/commission/commission.day.model");
+const { ImageBank } = require("../models/member.model/image_bank.model");
+const { ImageIden } = require("../models/member.model/image_iden.model");
 const line = require("../lib/line.notify.register");
 
 const bcrypt = require("bcrypt");
@@ -15,7 +15,7 @@ const jwt = require("jsonwebtoken");
 const dayjs = require("dayjs");
 require("dotenv").config();
 
-const {google} = require("googleapis");
+const { google } = require("googleapis");
 const multer = require("multer");
 const fs = require("fs");
 
@@ -30,7 +30,7 @@ const oauth2Client = new google.auth.OAuth2(
   REDIRECT_URI
 );
 
-oauth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
+oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 const drive = google.drive({
   version: "v3",
   auth: oauth2Client,
@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
 });
 
 //update image
-async function uploadFileCreate(req, res, {i, reqFiles}) {
+async function uploadFileCreate(req, res, { i, reqFiles }) {
   const filePath = req[i].path;
   let fileMetaData = {
     name: req.originalname,
@@ -62,7 +62,7 @@ async function uploadFileCreate(req, res, {i, reqFiles}) {
     generatePublicUrl(response.data.id);
     reqFiles.push(response.data.id);
   } catch (error) {
-    res.status(500).send({message: "Internal Server Error"});
+    res.status(500).send({ message: "Internal Server Error" });
   }
 }
 
@@ -84,7 +84,7 @@ async function generatePublicUrl(res) {
     console.log(result.data);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({message: "Internal Server Error"});
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 }
 
@@ -107,11 +107,11 @@ const vali_register = (data) => {
 
 exports.register = async (req, res) => {
   try {
-    const {error} = vali_register(req.body);
+    const { error } = vali_register(req.body);
     if (error) {
       return res
         .status(400)
-        .send({status: false, message: error.details[0].message});
+        .send({ status: false, message: error.details[0].message });
     }
     const user = await Members.findOne({
       username: req.body.username,
@@ -174,33 +174,33 @@ exports.register = async (req, res) => {
         token: token,
         timestamp: dayjs(Date.now()).format(),
       }).save();
-      return res.status(200).send({status: true, message: "สมัครสมาชิกสำเร็จ"});
+      return res.status(200).send({ status: true, message: "สมัครสมาชิกสำเร็จ" });
     } else {
       return res
         .status(400)
-        .send({status: false, message: "สมัครสมาชิกไม่สำเร็จ"});
+        .send({ status: false, message: "สมัครสมาชิกไม่สำเร็จ" });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
 exports.checkPassword = async (req, res) => {
-  const {username, password} = req.body;
+  const { username, password } = req.body;
   // const admin = await Admins.findOne({username});
-  const member = await Members.findOne({username});
+  const member = await Members.findOne({ username });
   const validPasswordAdmin = await bcrypt.hash(password, member.password);
   console.log(validPasswordAdmin);
 };
 
 exports.login = async (req, res) => {
   try {
-    const {username, password} = req.body;
+    const { username, password } = req.body;
     if (!username || !password) {
-      return res.status(400).send({message: error.details[0].message});
+      return res.status(400).send({ message: error.details[0].message });
     }
-    const admin = await Admins.findOne({username});
+    const admin = await Admins.findOne({ username });
     if (!admin) {
       await checkMembers(req, res);
     } else {
@@ -218,7 +218,9 @@ exports.login = async (req, res) => {
         name: admin.name,
         username: admin.username,
       };
-      const token = jwt.sign(payload, `${process.env.JWTPRIVATEKEY}`);
+      const token = jwt.sign(payload, `${process.env.JWTPRIVATEKEY}`, {
+        expiresIn: "4h",
+      });
       await new LoginHistory({
         username: admin.username,
         timestamp: dayjs(Date.now()).format(),
@@ -243,16 +245,16 @@ exports.login = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send({message: "Internal Server Error"});
+    res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
 exports.logout = async (req, res) => {
   try {
     const token = token_decode(req.headers["token"]);
-    const logout = await TokenList.deleteMany({id: token._id});
+    const logout = await TokenList.deleteMany({ id: token._id });
     if (logout) {
-      return res.status(200).send({status: true, message: "ออกจากระบบสำเร็จ"});
+      return res.status(200).send({ status: true, message: "ออกจากระบบสำเร็จ" });
     } else {
       return res.status(400).send({
         status: false,
@@ -261,7 +263,7 @@ exports.logout = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -273,24 +275,24 @@ exports.me = async (req, res) => {
     if (token.auth === "admin") {
       const admin = await Admins.findById(token._id);
       if (admin) {
-        return res.status(200).send({status: true, data: admin});
+        return res.status(200).send({ status: true, data: admin });
       } else {
         return res
           .status(400)
-          .send({status: false, message: "ไม่พบข้อมูลผู้ใช้นี้"});
+          .send({ status: false, message: "ไม่พบข้อมูลผู้ใช้นี้" });
       }
     } else {
       const member = await Members.findById(token._id);
       if (member) {
-        return res.status(200).send({status: true, data: member});
+        return res.status(200).send({ status: true, data: member });
       } else {
         return res
           .status(400)
-          .send({status: false, message: "ไม่พบข้อมูลผู้ใช้นี้"});
+          .send({ status: false, message: "ไม่พบข้อมูลผู้ใช้นี้" });
       }
     }
   } catch (err) {
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -298,7 +300,7 @@ exports.me = async (req, res) => {
 exports.edit = async (req, res) => {
   try {
     const token = token_decode(req.headers["token"]);
-    const member = await Members.findOne({_id: token._id});
+    const member = await Members.findOne({ _id: token._id });
 
     const bank = req.body.back ? req.body.back : member.bank;
     const iden = req.body.iden ? req.body.iden : member.iden;
@@ -330,10 +332,10 @@ exports.edit = async (req, res) => {
         commission_week: commission_week,
       });
     } else {
-      return res.status(403).send({message: "เกิดข้อผิดพลาด"});
+      return res.status(403).send({ message: "เกิดข้อผิดพลาด" });
     }
   } catch (err) {
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -346,11 +348,11 @@ exports.setPassword = async (req, res) => {
       });
       return schema.validate(data);
     };
-    const {error} = vali(req.body);
+    const { error } = vali(req.body);
     if (error) {
       return res
         .status(400)
-        .send({status: false, message: error.details[0].message});
+        .send({ status: false, message: error.details[0].message });
     }
     const decode = token_decode(req.headers["token"]);
     const encrytedPassword = await bcrypt.hash(req.body.password, 10);
@@ -360,26 +362,26 @@ exports.setPassword = async (req, res) => {
     if (change_password) {
       return res
         .status(200)
-        .send({status: true, message: "ทำการเปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว"});
+        .send({ status: true, message: "ทำการเปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว" });
     } else {
       return res
         .status(400)
-        .send({status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ"});
+        .send({ status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ" });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
 //แก้ไขหรือตั้งรหัสผ่านใหม่
 exports.resetPassword = async (req, res) => {
   try {
-    const id = req.body.member_number;
-    const username = req.body.username;
+    // const id = req.body.member_number;
+    // const username = req.body.username;
+    const id = req.params.id;
     const member = await Members.findOne({
-      member_number: id,
-      username: username,
+      _id: id,
     });
     const encrytedPassword = await bcrypt.hash(member.tel, 10);
     console.log(encrytedPassword);
@@ -389,15 +391,15 @@ exports.resetPassword = async (req, res) => {
     if (change_password) {
       return res
         .status(200)
-        .send({status: true, message: "ทำการเปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว"});
+        .send({ status: true, message: "ทำการเปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว" });
     } else {
       return res
         .status(400)
-        .send({status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ"});
+        .send({ status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ" });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -413,11 +415,11 @@ exports.forgotPassword = async (req, res) => {
       });
       return schema.validate(data);
     };
-    const {error} = vali(req.body);
+    const { error } = vali(req.body);
     if (error) {
       return res
         .status(400)
-        .send({status: false, message: error.details[0].message});
+        .send({ status: false, message: error.details[0].message });
     }
     const member = await Members.findOne({
       tel: req.body.phone,
@@ -427,7 +429,7 @@ exports.forgotPassword = async (req, res) => {
     if (!member) {
       return res
         .status(403)
-        .send({status: false, message: "ไม่พบข้อมูลลูกค้า"});
+        .send({ status: false, message: "ไม่พบข้อมูลลูกค้า" });
     } else {
       if (req.body.phone !== member.tel) {
         return res.status(403).send({
@@ -447,13 +449,13 @@ exports.forgotPassword = async (req, res) => {
         } else {
           return res
             .status(400)
-            .send({status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ"});
+            .send({ status: false, message: "เปลี่ยนรหัสผ่านไม่สำเร็จ" });
         }
       }
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -463,7 +465,7 @@ const checkMembers = async (req, res) => {
     // if (!username || !password) {
     //   return res.status(400).send({message: error.details[0].message});
     // }
-    const member = await Members.findOne({username: req.body.username});
+    const member = await Members.findOne({ username: req.body.username });
     const validPasswordAdmin =
       member && (await bcrypt.compare(req.body.password, member.password));
     if (!validPasswordAdmin) {
@@ -506,35 +508,35 @@ const checkMembers = async (req, res) => {
       status: true,
     });
   } catch (error) {
-    res.status(500).send({message: "Internal Server Error"});
+    res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
 exports.verify_bank = async (req, res) => {
   try {
     //UPLOAD TO GOOGLE DRIVE
-    let upload = multer({storage: storage}).fields([
-      {name: "bank_image", maxCount: 10},
+    let upload = multer({ storage: storage }).fields([
+      { name: "bank_image", maxCount: 10 },
     ]);
     upload(req, res, async function (err) {
       if (req.files.bank_image) {
         console.log("มีรูปเข้ามา");
         await uploadImageBank(req, res);
       } else {
-        return res.status(400).send({status: false, message: "ไม่พบรูปภาพ"});
+        return res.status(400).send({ status: false, message: "ไม่พบรูปภาพ" });
       }
     });
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
 exports.verify_iden = async (req, res) => {
   try {
     //UPLOAD TO GOOGLE DRIVE
-    let upload = multer({storage: storage}).fields([
-      {name: "iden_image", maxCount: 10},
+    let upload = multer({ storage: storage }).fields([
+      { name: "iden_image", maxCount: 10 },
     ]);
     upload(req, res, async function (err) {
       console.log(req.body.number);
@@ -542,18 +544,18 @@ exports.verify_iden = async (req, res) => {
         console.log("มีรูปเข้ามา");
         await uploadImageIden(req, res);
       } else {
-        return res.status(400).send({status: false, message: "ไม่พบรูปภาพ"});
+        return res.status(400).send({ status: false, message: "ไม่พบรูปภาพ" });
       }
     });
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
 exports.confirmBank = async (req, res) => {
   try {
-    const updateStatus = await ImageBank.findOne({_id: req.params.id});
+    const updateStatus = await ImageBank.findOne({ _id: req.params.id });
     const member = await Members.findOne({
       member_number: updateStatus.member_number,
     });
@@ -583,17 +585,17 @@ exports.confirmBank = async (req, res) => {
         });
       }
     } else {
-      return res.status(403).send({message: "เกิดข้อผิดพลาด"});
+      return res.status(403).send({ message: "เกิดข้อผิดพลาด" });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
 exports.confirmIden = async (req, res) => {
   try {
-    const updateStatus = await ImageIden.findOne({_id: req.params.id});
+    const updateStatus = await ImageIden.findOne({ _id: req.params.id });
     const member = await Members.findOne({
       member_number: updateStatus.member_number,
     });
@@ -623,11 +625,11 @@ exports.confirmIden = async (req, res) => {
         });
       }
     } else {
-      return res.status(403).send({message: "เกิดข้อผิดพลาด"});
+      return res.status(403).send({ message: "เกิดข้อผิดพลาด" });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -645,7 +647,7 @@ module.exports.Getverify_iden = async (req, res) => {
     console.error(error);
     return res
       .status(500)
-      .send({message: "มีบางอย่างผิดพลาด", error: "server side error"});
+      .send({ message: "มีบางอย่างผิดพลาด", error: "server side error" });
   }
 };
 
@@ -682,7 +684,7 @@ module.exports.Getverify_bank = async (req, res) => {
     console.error(error);
     return res
       .status(500)
-      .send({message: "มีบางอย่างผิดพลาด", error: "server side error"});
+      .send({ message: "มีบางอย่างผิดพลาด", error: "server side error" });
   }
 };
 
@@ -713,7 +715,7 @@ async function uploadImageBank(req, res) {
     if (!member) {
       return res
         .status(400)
-        .send({status: false, message: "ไม่พบผู้ใช้งานนี้ในระบบ"});
+        .send({ status: false, message: "ไม่พบผู้ใช้งานนี้ในระบบ" });
     }
     //UPLOAD รูป
     let fileMetaDataImg = {
@@ -768,7 +770,7 @@ async function uploadImageBank(req, res) {
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 }
 
@@ -780,7 +782,7 @@ async function uploadImageIden(req, res) {
     if (!member) {
       return res
         .status(400)
-        .send({status: false, message: "ไม่พบผู้ใช้งานนี้ในระบบ"});
+        .send({ status: false, message: "ไม่พบผู้ใช้งานนี้ในระบบ" });
     }
     //UPLOAD รูป
     let fileMetaDataImg = {
@@ -834,7 +836,7 @@ async function uploadImageIden(req, res) {
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 }
 
@@ -854,7 +856,7 @@ module.exports.condition = async (req, res) => {
     const conditions = new Condition(data);
     conditions.save();
     if (conditions) {
-      return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
+      return res.status(200).send({ status: true, message: "บันทึกสำเร็จ" });
     } else {
       return res.status(403).send({
         status: false,
@@ -863,7 +865,7 @@ module.exports.condition = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).send({message: "Internal Server Error"});
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
@@ -890,15 +892,15 @@ exports.Conditiondelete = async (req, res) => {
     const id = req.params.id;
     const condition = await Condition.findByIdAndDelete(id);
     if (condition) {
-      return res.status(200).send({status: true, message: "ลบข้อมูลสำเร็จ"});
+      return res.status(200).send({ status: true, message: "ลบข้อมูลสำเร็จ" });
     } else {
       return res
         .status(400)
-        .send({status: false, message: "ลบข้อมูลไม่สำเร็จ"});
+        .send({ status: false, message: "ลบข้อมูลไม่สำเร็จ" });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -907,15 +909,15 @@ exports.deletebank = async (req, res) => {
     const id = req.params.id;
     const bank = await ImageBank.findByIdAndDelete(id);
     if (bank) {
-      return res.status(200).send({status: true, message: "ลบข้อมูลสำเร็จ"});
+      return res.status(200).send({ status: true, message: "ลบข้อมูลสำเร็จ" });
     } else {
       return res
         .status(400)
-        .send({status: false, message: "ลบข้อมูลไม่สำเร็จ"});
+        .send({ status: false, message: "ลบข้อมูลไม่สำเร็จ" });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -924,15 +926,15 @@ exports.deleteiden = async (req, res) => {
     const id = req.params.id;
     const iden = await ImageIden.findByIdAndDelete(id);
     if (iden) {
-      return res.status(200).send({status: true, message: "ลบข้อมูลสำเร็จ"});
+      return res.status(200).send({ status: true, message: "ลบข้อมูลสำเร็จ" });
     } else {
       return res
         .status(400)
-        .send({status: false, message: "ลบข้อมูลไม่สำเร็จ"});
+        .send({ status: false, message: "ลบข้อมูลไม่สำเร็จ" });
     }
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
 
@@ -954,6 +956,6 @@ exports.referral = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: "มีบางอย่างผิดพลาด"});
+    return res.status(500).send({ message: "มีบางอย่างผิดพลาด" });
   }
 };
