@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/assets
 /.pnp
 .pnp.js
 package-lock.json
@@ -10,7 +11,6 @@ package-lock.json
 
 # production
 /build
-/assets
 
 # misc
 .DS_Store
