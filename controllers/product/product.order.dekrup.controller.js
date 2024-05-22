@@ -119,7 +119,7 @@ ID_line : ${orderDekrup.customer_line}
 ตรวจสอบได้ที่ : http://shop.dekrubshop.com/
 
 *รบกวนตรวจสอบด้วยนะคะ/ครับ*`;
-      // await line.linenotify(message);
+      await line.linenotify(message);
       return res
         .status(200)
         .send({ status: true, message: "บันทึกสำเร็จ", data: orderDekrup });
