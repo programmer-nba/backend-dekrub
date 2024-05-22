@@ -8,6 +8,4 @@ router.get('/:id', authAdmin, Admin.getById);
 router.put('/:id', authAdmin, Admin.editUser);
 router.delete('/delete/:id', authAdmin, Admin.delUser);
 
-router.get('/back')
-
 module.exports = router;

@@ -1,7 +1,4 @@
-const {
-  Category,
-  validate,
-} = require("../../models/product.model/category.model");
+const { Category, validate, } = require("../../models/product.model/category.model");
 const fs = require("fs");
 const multer = require("multer");
 
@@ -17,15 +14,15 @@ module.exports.create = async (req, res) => {
     };
     const category = await Category.create(data);
     if (category) {
-      return res.status(200).send({status: true, message: "บันทึกสำเร็จ"});
+      return res.status(200).send({ status: true, message: "บันทึกสำเร็จ" });
     } else {
       return res
         .status(403)
-        .send({status: false, message: "ไม่สามารถบันทึกได้"});
+        .send({ status: false, message: "ไม่สามารถบันทึกได้" });
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).send({message: "Internal Server Error"});
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
@@ -35,12 +32,12 @@ module.exports.GetAll = async (req, res) => {
     const category = await Category.find();
     return res
       .status(200)
-      .send({status: true, message: "ดึงข้อมูลสำเร็จ", data: category});
+      .send({ status: true, message: "ดึงข้อมูลสำเร็จ", data: category });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .send({message: "มีบางอย่างผิดพลาด", error: "server side error"});
+      .send({ message: "มีบางอย่างผิดพลาด", error: "server side error" });
   }
 };
 
@@ -49,17 +46,17 @@ module.exports.GetById = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category) {
-      return res.status(403).send({status: false, message: "ไม่พบข้อมูล"});
+      return res.status(403).send({ status: false, message: "ไม่พบข้อมูล" });
     } else {
       return res
         .status(200)
-        .send({status: true, message: "ดึงข้อมูลสำเร็จ", data: category});
+        .send({ status: true, message: "ดึงข้อมูลสำเร็จ", data: category });
     }
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .send({message: "มีบางอย่างผิดพลาด", error: "server side error"});
+      .send({ message: "มีบางอย่างผิดพลาด", error: "server side error" });
   }
 };
 
@@ -76,15 +73,15 @@ module.exports.UpdateById = async (req, res) => {
     if (category) {
       return res
         .status(200)
-        .send({message: "อัพเดตข้อมูลสำเร็จ", data: category});
+        .send({ message: "อัพเดตข้อมูลสำเร็จ", data: category });
     } else {
       return res
         .status(400)
-        .send({status: false, message: "แก้ไขไม่สำเร็จ กรุณาลองอีกครั้ง"});
+        .send({ status: false, message: "แก้ไขไม่สำเร็จ กรุณาลองอีกครั้ง" });
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).send({message: "Internal Server Error"});
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
@@ -94,15 +91,15 @@ module.exports.delete = async (req, res) => {
     const id = req.params.id;
     const category = await Category.findByIdAndDelete(id);
     if (category) {
-      return res.status(200).send({status: true, message: "ลบสำเร็จ"});
+      return res.status(200).send({ status: true, message: "ลบสำเร็จ" });
     } else {
       return res
         .status(400)
-        .send({status: false, message: "ลบไม่สำเร็จ กรุณาลองอีกครั้ง"});
+        .send({ status: false, message: "ลบไม่สำเร็จ กรุณาลองอีกครั้ง" });
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).send({message: "Internal Server Error"});
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 

@@ -1,39 +1,47 @@
-const {Product} = require("../../models/product.model/product.model");
+const { Product } = require("../../models/product.model/product.model");
 const {
   OrderProductModel,
 } = require("../../models/product.model/product.order.model");
-const {Members} = require("../../models/member.model/member.model");
+const { Members } = require("../../models/member.model/member.model");
 const {
   Commission_week,
 } = require("../../models/commission/commission.week.model");
 // const line = require("");
 
-const {google} = require("googleapis");
+const { google } = require("googleapis");
 const multer = require("multer");
 const fs = require("fs");
+const path = require("path");
 const jwt = require("jsonwebtoken");
 const dayjs = require("dayjs");
-const {request} = require("http");
+const { request } = require("http");
 const line = require("../../lib/line.notify.order.js");
 
-const CLIENT_ID = process.env.GOOGLE_DRIVE_CLIENT_ID;
-const CLIENT_SECRET = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
-const REDIRECT_URI = process.env.GOOGLE_DRIVE_REDIRECT_URI;
-const REFRESH_TOKEN = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
+// const CLIENT_ID = process.env.GOOGLE_DRIVE_CLIENT_ID;
+// const CLIENT_SECRET = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
+// const REDIRECT_URI = process.env.GOOGLE_DRIVE_REDIRECT_URI;
+// const REFRESH_TOKEN = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
+// 
+// const oauth2Client = new google.auth.OAuth2(
+// CLIENT_ID,
+// CLIENT_SECRET,
+// REDIRECT_URI
+// );
+// 
+// oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+// const drive = google.drive({
+// version: "v3",
+// auth: oauth2Client,
+// });
+// 
 
-const oauth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
-);
-
-oauth2Client.setCredentials({refresh_token: REFRESH_TOKEN});
-const drive = google.drive({
-  version: "v3",
-  auth: oauth2Client,
-});
+const uploadFolder = path.join(__dirname, '../../assets/slip');
+fs.mkdirSync(uploadFolder, { recursive: true });
 
 const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadFolder)
+  },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
     // console.log(file.originalname);
@@ -45,7 +53,7 @@ module.exports.order = async (req, res) => {
     const orders = [];
     const pipeline = [
       {
-        $group: {_id: 0, count: {$sum: 1}},
+        $group: { _id: 0, count: { $sum: 1 } },
       },
     ];
     const count = await OrderProductModel.aggregate(pipeline);
@@ -71,7 +79,7 @@ module.exports.order = async (req, res) => {
       }
 
       if (product.quantity < item.quantity) {
-        return res.status(403).send({message: "จำนวนสินค้าไม่เพียงพอ"});
+        return res.status(403).send({ message: "จำนวนสินค้าไม่เพียงพอ" });
       } else {
         const new_quantity = product.quantity - item.quantity;
 
@@ -111,10 +119,10 @@ ID_line : ${orderDekrup.customer_line}
 ตรวจสอบได้ที่ : http://shop.dekrubshop.com/
 
 *รบกวนตรวจสอบด้วยนะคะ/ครับ*`;
-      await line.linenotify(message);
+      // await line.linenotify(message);
       return res
         .status(200)
-        .send({status: true, message: "บันทึกสำเร็จ", data: orderDekrup});
+        .send({ status: true, message: "บันทึกสำเร็จ", data: orderDekrup });
     } else {
       return res.status(403).send({
         status: false,
@@ -123,23 +131,20 @@ ID_line : ${orderDekrup.customer_line}
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).send({message: "Internal Server Error"});
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
 module.exports.updatePictures = async (req, res) => {
   try {
     const id = req.params.id;
-
-    let upload = multer({storage: storage}).array("imgCollection", 20);
+    let upload = multer({ storage: storage }).single("imgCollection");
     upload(req, res, async function (err) {
       if (err) {
-        return res.status(403).send({message: "มีบางอย่างผิดพลาด", data: err});
+        return res.status(403).send({ message: "มีบางอย่างผิดพลาด", data: err });
       }
 
-      const reqFiles = [];
-
-      if (!req.files) {
+      if (!req.file) {
         return res.status(500).send({
           message: "มีบางอย่างผิดพลาด",
           data: "No Request Files",
@@ -147,24 +152,21 @@ module.exports.updatePictures = async (req, res) => {
         });
       }
 
-      const url = req.protocol + "://" + req.get("host");
-      for (var i = 0; i < req.files.length; i++) {
-        await uploadFileCreate(req.files, res, {i, reqFiles});
-      }
-
       const orderService = await OrderProductModel.findById(id);
       if (!orderService) {
-        return res.status(404).send({message: "Order service not found"});
+        return res.status(404).send({ message: "Order service not found" });
       }
 
       if (!orderService.picture) {
         orderService.picture = [];
       }
 
-      const newPictures = orderService.picture.concat(reqFiles);
-      const NewPicture = await OrderProductModel.findByIdAndUpdate(id, {
-        picture: newPictures,
-      });
+      // const newPictures = orderService.picture.concat(reqFiles);
+      const NewPicture = await OrderProductModel.findByIdAndUpdate(
+        id,
+        { picture: req.file.filename },
+        { useFindAndModify: false, }
+      );
       if (NewPicture) {
         return res.status(200).send({
           message: "อัพเดทรูปภาพสำเร็จ",
@@ -172,56 +174,22 @@ module.exports.updatePictures = async (req, res) => {
       } else {
         return res
           .status(403)
-          .send({message: "อัพเดทรูปภาพไม่สำเร็จ", data: err});
+          .send({ message: "อัพเดทรูปภาพไม่สำเร็จ", data: err });
       }
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).send({message: "Internal Server Error"});
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
-//update image
-async function uploadFileCreate(req, res, {i, reqFiles}) {
-  const filePath = req[i].path;
-  let fileMetaData = {
-    name: req.originalname,
-    parents: [process.env.GOOGLE_DRIVE_IMAGE_PRODUCT],
-  };
-  let media = {
-    body: fs.createReadStream(filePath),
-  };
+module.exports.getImage = async (req, res) => {
   try {
-    const response = await drive.files.create({
-      resource: fileMetaData,
-      media: media,
-    });
-
-    generatePublicUrl(response.data.id);
-    reqFiles.push(response.data.id);
+    const imgname = req.params.imgname;
+    const imagePath = path.join(__dirname, '../../assets/slip', imgname);
+    return res.sendFile(imagePath)
   } catch (error) {
-    res.status(500).send({message: "Internal Server Error"});
-  }
-}
-
-async function generatePublicUrl(res) {
-  console.log("generatePublicUrl");
-  try {
-    const fileId = res;
-    await drive.permissions.create({
-      fileId: fileId,
-      requestBody: {
-        role: "reader",
-        type: "anyone",
-      },
-    });
-    const result = await drive.files.get({
-      fileId: fileId,
-      fields: "webViewLink, webContentLink",
-    });
-    console.log(result.data);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({message: "Internal Server Error"});
+    console.error(error);
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 }

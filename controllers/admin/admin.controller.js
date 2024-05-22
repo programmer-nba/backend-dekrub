@@ -1,110 +1,110 @@
-const {Admins, validate} = require('../../models/admin.model');
+const { Admins, validate } = require('../../models/admin.model');
 const bcrypt = require("bcrypt");
 const Joi = require('joi');
 const dayjs = require("dayjs");
 
-exports.addUser = async(req, res)=>{
-    try{
-        const {error} = validate(req.body);
-        if(error){
-            return res.status(400).send({status: false, message: error.details[0].message})
+exports.addUser = async (req, res) => {
+    try {
+        const { error } = validate(req.body);
+        if (error) {
+            return res.status(400).send({ status: false, message: error.details[0].message })
         }
         //check username 
-        const username = await Admins.findOne({username : req.body.username});
-        if(username){
-            return res.status(400).send({status: false,message: 'ชื่อผู้ใช้งานนี้มีในระบบเรียบร้อยแล้ว'})
+        const username = await Admins.findOne({ username: req.body.username });
+        if (username) {
+            return res.status(400).send({ status: false, message: 'ชื่อผู้ใช้งานนี้มีในระบบเรียบร้อยแล้ว' })
         }
         const position = 'admin';
         const status = true;
-        const encrytedPassword = await bcrypt.hash(req.body.password, 10);    
-        const user = await Admins.create({...req.body, password:encrytedPassword, position: position, status: status});
-        if(user){
-            return res.status(201).send({status: true, message: 'เพิ่มผู้ใช้งานเรียบร้อยแล้ว'})
-        }else{
-            return res.status(400).send({status: false, message: 'เพิ่มผู้ใช้งานไม่สำเร็จ'})
+        const encrytedPassword = await bcrypt.hash(req.body.password, 10);
+        const user = await Admins.create({ ...req.body, password: encrytedPassword, position: position, status: status });
+        if (user) {
+            return res.status(201).send({ status: true, message: 'เพิ่มผู้ใช้งานเรียบร้อยแล้ว' })
+        } else {
+            return res.status(400).send({ status: false, message: 'เพิ่มผู้ใช้งานไม่สำเร็จ' })
         }
-        
-    }catch(err){
-        return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+
+    } catch (err) {
+        return res.status(500).send({ message: 'มีบางอย่างผิดพลาด' })
     }
 }
 
-exports.editUser = async(req, res)=>{
-    try{
+exports.editUser = async (req, res) => {
+    try {
         const id = req.params.id;
-        const vali = (data)=>{
+        const vali = (data) => {
             const schema = Joi.object({
-                name : Joi.string(),
-                password : Joi.string(),
-                position : Joi.string(),
-                status : Joi.string()
+                name: Joi.string(),
+                password: Joi.string(),
+                position: Joi.string(),
+                status: Joi.string()
             })
             return schema.validate(data);
         }
-        const {error} = vali(req.body);
-        if(error){
-            return res.status(400).send({status: false, message: error.details[0].message})
+        const { error } = vali(req.body);
+        if (error) {
+            return res.status(400).send({ status: false, message: error.details[0].message })
         }
-        let data = {...req.body}; 
-        if(req.body.password){
+        let data = { ...req.body };
+        if (req.body.password) {
             const encrytedPassword = await bcrypt.hash(req.body.password, 10);
-            data = {...req.body, password : encrytedPassword}
+            data = { ...req.body, password: encrytedPassword }
         }
         const user = await Admins.findByIdAndUpdate(id, data);
-        if(user){
-            return res.status(200).send({status: true ,message: 'แก้ไขข้อมูลสำเร็จ'})
-        }else{
-            return res.status(400).send({status: false, message: 'แก้ไขข้อมูลไม่สำเร็จ'})
+        if (user) {
+            return res.status(200).send({ status: true, message: 'แก้ไขข้อมูลสำเร็จ' })
+        } else {
+            return res.status(400).send({ status: false, message: 'แก้ไขข้อมูลไม่สำเร็จ' })
         }
-    }catch(err){
+    } catch (err) {
         console.log(err);
-        return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+        return res.status(500).send({ message: 'มีบางอย่างผิดพลาด' })
     }
 }
 
 //ดึงข้อมูล
-exports.getAll = async(req, res)=>{
-    try{
-        const user = await Admins.find(); 
-        if(user){
-            return res.status(200).send({status: true, data: user})
-        }else{
-            return res.status(400).send({status: false, message : 'ดึงข้อมูลไม่สำเร็จ'})
+exports.getAll = async (req, res) => {
+    try {
+        const user = await Admins.find();
+        if (user) {
+            return res.status(200).send({ status: true, data: user })
+        } else {
+            return res.status(400).send({ status: false, message: 'ดึงข้อมูลไม่สำเร็จ' })
         }
-    }catch(err){
+    } catch (err) {
         console.log(err);
-        return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+        return res.status(500).send({ message: 'มีบางอย่างผิดพลาด' })
     }
 }
 
 //ดึงข้อมูลโดย _id
-exports.getById = async(req,res)=>{
-    try{
+exports.getById = async (req, res) => {
+    try {
         const id = req.params.id;
         const user = await Admins.findById(id);
-        if(user){
-            return res.status(200).send({status: true, data: user});
-        }else{
-            return res.status(400).send({status:false, message: 'ไม่พบข้อมูลในระบบ'})
+        if (user) {
+            return res.status(200).send({ status: true, data: user });
+        } else {
+            return res.status(400).send({ status: false, message: 'ไม่พบข้อมูลในระบบ' })
         }
-    }catch(err){
+    } catch (err) {
         console.log(err);
-        return res.status(500).send({status: false, message: 'มีบางอย่างผิดพลาด'})
+        return res.status(500).send({ status: false, message: 'มีบางอย่างผิดพลาด' })
     }
 }
 
 //ลบข้อมูลผู้ใช้งาน
- exports.delUser = async(req, res)=>{
-    try{
+exports.delUser = async (req, res) => {
+    try {
         const id = req.params.id;
         const user = await Admins.findByIdAndDelete(id);
-        if(user){
-            return res.status(200).send({status: true, message: 'ลบข้อมูลผู้ใช้งานสำเร็จ'})
-        }else{
-            return res.status(400).send({status: false, message: 'ลบข้อมูลผู้ใช้งานไม่สำเร็จ'})
+        if (user) {
+            return res.status(200).send({ status: true, message: 'ลบข้อมูลผู้ใช้งานสำเร็จ' })
+        } else {
+            return res.status(400).send({ status: false, message: 'ลบข้อมูลผู้ใช้งานไม่สำเร็จ' })
         }
-    }catch(err){
+    } catch (err) {
         console.log(err);
-        return res.status(500).send({message: 'มีบางอย่างผิดพลาด'})
+        return res.status(500).send({ message: 'มีบางอย่างผิดพลาด' })
     }
- }
+}

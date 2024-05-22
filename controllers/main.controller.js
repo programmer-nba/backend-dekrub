@@ -235,7 +235,7 @@ exports.login = async (req, res) => {
         username: admin.username,
         position: admin.position,
       };
-      res.status(200).send({
+      return res.status(200).send({
         token: token,
         messahe: "เข้าสู่ระบบสำเร็จ",
         result: ResponesData,
@@ -271,7 +271,6 @@ exports.logout = async (req, res) => {
 exports.me = async (req, res) => {
   try {
     const token = token_decode(req.headers["token"]);
-    console.log(token);
     if (token.auth === "admin") {
       const admin = await Admins.findById(token._id);
       if (admin) {
